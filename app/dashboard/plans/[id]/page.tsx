@@ -264,7 +264,7 @@ export default function PlanEditorPage() {
                     </div>
                     {isEditing && (
                       <ExerciseSetEditor pe={pe} ex={ex}
-                        onChange={(patch) => updateExercise(dayIdx, exIdx, patch)}
+                        onChange={(patch: Partial<PlanExercise>) => updateExercise(dayIdx, exIdx, patch)}
                         onClose={() => setEditingEx(null)} />
                     )}
                   </div>
