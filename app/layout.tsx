@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "KALION MAX",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="glow glow-1"></div>
         <div className="glow glow-2"></div>
         <ToastProvider>{children}</ToastProvider>
+        <Analytics />
         <script dangerouslySetInnerHTML={{ __html: `
           document.addEventListener('click', function(e) {
             const btn = e.target.closest('.btn');
