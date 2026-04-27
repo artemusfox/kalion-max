@@ -87,7 +87,7 @@ export default function ProgressPage() {
                     )}
                   </div>
                   <div style={{
-                    fontFamily: "var(--font-display)", fontStyle: "italic",
+                    fontFamily: "var(--font-display)",
                     fontSize: 28, fontWeight: 800, letterSpacing: -1,
                     color: exercise ? SPORT_COLORS[exercise.sport] : "var(--text)",
                     textAlign: "right",
@@ -175,7 +175,7 @@ function AddPRModal({ onClose, onDone }: { onClose: () => void; onDone: () => vo
     <div style={modalOverlay} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 500, width: "100%", maxHeight: "85vh", overflowY: "auto", margin: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ fontSize: 20, fontStyle: "italic" }}>Neues PR</h3>
+          <h3 style={{ fontSize: 20 }}>Neues PR</h3>
           <button onClick={onClose} className="btn btn-ghost">✕</button>
         </div>
 
@@ -237,7 +237,7 @@ function StatBox({ label, value, suffix, color }: any) {
   return (
     <div style={{ padding: 20, border: "1px solid var(--border)", borderRadius: 14, background: "var(--bg-elevated)", textAlign: "center" }}>
       <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 800 }}>{label}</div>
-      <div style={{ fontSize: 44, fontWeight: 800, fontFamily: "var(--font-display)", color, letterSpacing: -2, fontStyle: "italic", lineHeight: 1, marginTop: 8 }}>
+      <div style={{ fontSize: 44, fontWeight: 800, fontFamily: "var(--font-display)", color, letterSpacing: -2, lineHeight: 1, marginTop: 8 }}>
         {value}
       </div>
       <div style={{ fontSize: 11, color: "var(--text-dim)", fontWeight: 600, marginTop: 4 }}>{suffix}</div>
@@ -286,7 +286,7 @@ function ToolsTab() {
         {orm && (
           <div style={{ marginTop: 20, padding: 24, background: "var(--accent-tint)", border: "1px solid var(--accent-border)", borderRadius: 14, textAlign: "center" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>Geschätztes 1RM</div>
-            <div style={{ fontSize: 48, fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 800, color: "var(--accent)", letterSpacing: -2, marginTop: 8, lineHeight: 1 }}>
+            <div style={{ fontSize: 48, fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--accent)", letterSpacing: -2, marginTop: 8, lineHeight: 1 }}>
               {orm}<span style={{ fontSize: 18, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)", marginLeft: 4 }}>kg</span>
             </div>
           </div>

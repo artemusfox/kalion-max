@@ -46,10 +46,10 @@ export default async function DashboardPage() {
         <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 2, fontWeight: 800, marginBottom: 6 }}>
           {greeting}
         </div>
-        <h1 style={{ fontSize: 32, fontStyle: "italic", color: "var(--accent)", marginBottom: 10, letterSpacing: -1 }}>
+        <h1 style={{ fontSize: 32, color: "var(--accent)", marginBottom: 10, letterSpacing: -1 }}>
           Hey, {displayName}! ⚡
         </h1>
-        <p style={{ color: "var(--text-dim)", fontSize: 15, marginBottom: 0, fontStyle: "italic" }}>
+        <p style={{ color: "var(--text-dim)", fontSize: 15, marginBottom: 0 }}>
           "{quote}"
         </p>
       </div>
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
               <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>
                 Aktiver Plan
               </div>
-              <h3 style={{ fontSize: 20, fontStyle: "italic", marginTop: 4, marginBottom: 4 }}>{activePlan.name}</h3>
+              <h3 style={{ fontSize: 20, marginTop: 4, marginBottom: 4 }}>{activePlan.name}</h3>
               <div style={{ fontSize: 12, color: "var(--text-dim)" }}>
                 {SPORT_LABELS[activePlan.sport as Sport]} · {activePlan.duration_weeks} Wochen
               </div>
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
             background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
             display: "flex", alignItems: "center", justifyContent: "center",
             color: "#0a0a10", fontSize: 24, fontFamily: "var(--font-display)",
-            fontStyle: "italic", fontWeight: 800, boxShadow: "0 4px 20px var(--accent-glow)",
+            fontWeight: 800, boxShadow: "0 4px 20px var(--accent-glow)",
             flexShrink: 0,
           }}>{levelInfo.level}</div>
           <div style={{ flex: 1 }}>
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
                 padding: "12px 0", borderBottom: "1px solid var(--border)",
               }}>
                 <div style={{ width: 48, textAlign: "center", padding: 8, background: "var(--bg-elevated)", borderRadius: 10 }}>
-                  <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, fontWeight: 800 }}>{d.getDate()}</div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 800 }}>{d.getDate()}</div>
                   <div style={{ fontSize: 9, color: "var(--text-muted)", fontWeight: 800, letterSpacing: 1 }}>
                     {["JAN","FEB","MRZ","APR","MAI","JUN","JUL","AUG","SEP","OKT","NOV","DEZ"][d.getMonth()]}
                   </div>

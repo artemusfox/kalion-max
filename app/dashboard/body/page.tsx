@@ -149,7 +149,7 @@ export default function BodyPage() {
                       }}>+</button>
                     </div>
                     <div style={{
-                      fontFamily: "var(--font-display)", fontStyle: "italic",
+                      fontFamily: "var(--font-display)",
                       fontSize: 32, fontWeight: 800, letterSpacing: -1,
                       color: m.color, marginTop: 10, lineHeight: 1,
                     }}>
@@ -215,7 +215,7 @@ export default function BodyPage() {
                       </div>
                     </div>
                     <div style={{
-                      fontFamily: "var(--font-display)", fontStyle: "italic",
+                      fontFamily: "var(--font-display)",
                       fontWeight: 800, fontSize: 20, letterSpacing: -0.5, color: m?.color,
                     }}>{e.value}<span style={{ fontSize: 11, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)", marginLeft: 4 }}>{m?.unit}</span></div>
                   </div>

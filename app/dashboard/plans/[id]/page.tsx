@@ -144,7 +144,7 @@ export default function PlanEditorPage() {
               onBlur={() => save()}
               style={{
                 fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)",
-                fontStyle: "italic", background: "transparent", border: "1px solid transparent",
+                background: "transparent", border: "1px solid transparent",
                 padding: "4px 8px", marginBottom: 6,
               }} />
             <textarea className="form-textarea" value={plan.description || ""}
@@ -383,7 +383,7 @@ function ExercisePicker({ sport, onPick, onClose }: { sport: Sport; onPick: (ex:
         maxWidth: 600, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 0,
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ fontSize: 20, fontStyle: "italic" }}>Übung hinzufügen</h3>
+          <h3 style={{ fontSize: 20 }}>Übung hinzufügen</h3>
           <button onClick={onClose} className="btn btn-ghost">✕</button>
         </div>
 

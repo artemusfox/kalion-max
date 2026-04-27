@@ -7,6 +7,7 @@ import { EX_BY_ID } from "@/lib/exercises";
 import { SPORT_COLORS, type PlanExercise, type Exercise, type TrackingMode } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { suggestNextTargets, buildHistoryMap, type Suggestion } from "@/lib/auto-progression";
+import { speak, primeVoice } from "@/lib/voice";
 
 type SetData = {
   reps?: number;
@@ -125,14 +126,24 @@ export default function WorkoutSession({
   function startRest(sec: number) {
     clearInterval(restIntervalRef.current);
     setRestSeconds(sec);
+    primeVoice();
+    speak(`Pause ${sec} Sekunden`);
     restIntervalRef.current = setInterval(() => {
       setRestSeconds((r) => {
         if (r === null || r <= 1) {
           clearInterval(restIntervalRef.current);
           if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([100, 50, 100]);
+          speak("Los!");
           return null;
         }
-        return r - 1;
+        const next = r - 1;
+        // Sprach-Cues bei sinnvollen Marken
+        if (next === 10) speak("Zehn Sekunden");
+        else if (next === 5) speak("Fünf");
+        else if (next === 3) speak("Drei");
+        else if (next === 2) speak("Zwei");
+        else if (next === 1) speak("Eins");
+        return next;
       });
     }, 1000);
   }
@@ -225,7 +236,7 @@ export default function WorkoutSession({
             borderColor: "var(--accent-border)", textAlign: "center", padding: 40,
           }}>
             <div style={{ fontSize: 72, marginBottom: 16 }}>{perfect ? "🏆" : "💪"}</div>
-            <h2 style={{ fontStyle: "italic", fontSize: 28, marginBottom: 8 }}>
+            <h2 style={{ fontSize: 28, marginBottom: 8 }}>
               {perfect ? "Perfekt!" : "Gut gemacht!"}
             </h2>
             <div style={{ color: "var(--text-dim)" }}>{dayName} · Woche {week}</div>
@@ -288,7 +299,7 @@ export default function WorkoutSession({
         }} className="btn btn-ghost">✕</button>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800 }}>SESSION</div>
-          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, fontWeight: 800 }}>
+          <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800 }}>
             {String(Math.floor(elapsed/60)).padStart(2,"0")}:{String(elapsed%60).padStart(2,"0")}
           </div>
         </div>
@@ -312,7 +323,7 @@ export default function WorkoutSession({
           <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, marginBottom: 6, textTransform: "uppercase" }}>
             Übung {currentIdx + 1} von {session.length}
           </div>
-          <h2 style={{ fontSize: 30, fontStyle: "italic", letterSpacing: -1, marginBottom: 12, lineHeight: 1.1 }}>
+          <h2 style={{ fontSize: 30, letterSpacing: -1, marginBottom: 12, lineHeight: 1.1 }}>
             {ex.exercise.name}
           </h2>
           {ex.exercise.tip && (
@@ -359,7 +370,7 @@ export default function WorkoutSession({
         <div style={restOverlayStyle}>
           <div style={{ textAlign: "center", maxWidth: 400 }}>
             <div style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 3, textTransform: "uppercase", fontWeight: 800, marginBottom: 20 }}>Pause</div>
-            <div style={{ fontSize: 140, fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 800, color: "var(--accent)", letterSpacing: -5, lineHeight: 1, marginBottom: 30 }}>
+            <div style={{ fontSize: 140, fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--accent)", letterSpacing: -5, lineHeight: 1, marginBottom: 30 }}>
               {restSeconds}
             </div>
             <div style={{ height: 4, background: "var(--surface)", borderRadius: 2, overflow: "hidden", marginBottom: 24 }}>
@@ -444,7 +455,7 @@ function SummaryStat({ val, label, color }: any) {
   return (
     <div className="card" style={{ padding: 16, marginBottom: 0, textAlign: "center" }}>
       <div style={{
-        fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, fontWeight: 800,
+        fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 800,
         letterSpacing: -0.5, color,
       }}>{val}</div>
       <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 1.5, textTransform: "uppercase", fontWeight: 800, marginTop: 6 }}>{label}</div>

@@ -64,7 +64,7 @@ export default function GoalsPage() {
               background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
               display: "flex", alignItems: "center", justifyContent: "center",
               color: "#0a0a10", fontSize: 28, fontFamily: "var(--font-display)",
-              fontStyle: "italic", fontWeight: 800, boxShadow: "0 4px 20px var(--accent-glow)",
+              fontWeight: 800, boxShadow: "0 4px 20px var(--accent-glow)",
               flexShrink: 0,
             }}>{levelInfo.level}</div>
             <div style={{ flex: 1 }}>

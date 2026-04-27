@@ -145,7 +145,7 @@ export function ProgressRing({ value, max, size = 80, strokeWidth = 8, color = "
         position: "absolute", inset: 0,
         display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
-        fontFamily: "var(--font-display)", fontWeight: 800, fontStyle: "italic",
+        fontFamily: "var(--font-display)", fontWeight: 800,
       }}>
         <div style={{ fontSize: size * 0.28, color, letterSpacing: -1, lineHeight: 1 }}>
           {Math.round(progress * 100)}

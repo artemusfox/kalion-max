@@ -43,7 +43,7 @@ export default function NewPlanPage() {
 
   return (
     <div style={{ maxWidth: 640, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 28, fontStyle: "italic", marginBottom: 24 }}>Neuer Trainingsplan</h1>
+      <h1 style={{ fontSize: 28, marginBottom: 24 }}>Neuer Trainingsplan</h1>
 
       <div className="card">
         <div className="form-group">

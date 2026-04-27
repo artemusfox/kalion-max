@@ -82,7 +82,7 @@ export default function TrainingPage() {
             <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>
               Aktiver Plan
             </div>
-            <div style={{ fontSize: 22, fontStyle: "italic", fontWeight: 800, fontFamily: "var(--font-display)", letterSpacing: -0.5 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: "var(--font-display)", letterSpacing: -0.5 }}>
               {plan.name}
             </div>
             <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>
@@ -112,7 +112,7 @@ export default function TrainingPage() {
               <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>
                 Woche {week} von {plan.duration_weeks}
               </div>
-              <div style={{ fontSize: 28, fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 800, letterSpacing: -1 }}>
+              <div style={{ fontSize: 28, fontFamily: "var(--font-display)", fontWeight: 800, letterSpacing: -1 }}>
                 {currentWeek.days?.length || 0} Tage
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function TrainingPage() {
                         day.exercises.map((pe: PlanExercise, ei: number) => {
                           const ex = EX_BY_ID[pe.exerciseId];
                           if (!ex) return (
-                            <div key={ei} style={{ padding: "10px 0", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                            <div key={ei} style={{ padding: "10px 0", fontSize: 12, color: "var(--text-muted)" }}>
                               ⚠ Übung nicht gefunden
                             </div>
                           );
@@ -228,7 +228,7 @@ export default function TrainingPage() {
                   padding: "12px 0", borderBottom: "1px solid var(--border)",
                 }}>
                   <div style={{ width: 52, textAlign: "center", borderRight: "1px solid var(--border)", paddingRight: 12 }}>
-                    <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800, lineHeight: 1 }}>
                       {d.getDate()}
                     </div>
                     <div style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 800, letterSpacing: 1, marginTop: 2 }}>

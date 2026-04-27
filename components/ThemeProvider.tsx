@@ -3,7 +3,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export type Theme = "cyan" | "lime" | "purple" | "orange" | "rose" | "mono";
-export type Surface = "slate" | "black" | "blue" | "warm" | "forest" | "violet";
+export type Surface =
+  | "slate" | "black" | "blue" | "warm" | "forest" | "violet"
+  | "snow" | "cream" | "mint" | "lavender" | "sand";
 
 export const THEMES: { id: Theme; label: string; preview: string }[] = [
   { id: "cyan",   label: "Electric Cyan",  preview: "#22D3EE" },
@@ -14,13 +16,20 @@ export const THEMES: { id: Theme; label: string; preview: string }[] = [
   { id: "mono",   label: "Monochrome",     preview: "#E5E7EB" },
 ];
 
-export const SURFACES: { id: Surface; label: string; preview: string }[] = [
-  { id: "slate",  label: "Slate (Default)", preview: "#0f1218" },
-  { id: "black",  label: "OLED Black",      preview: "#000000" },
-  { id: "blue",   label: "Deep Blue",       preview: "#0a1428" },
-  { id: "warm",   label: "Warm Charcoal",   preview: "#1a1612" },
-  { id: "forest", label: "Forest Night",    preview: "#0a1812" },
-  { id: "violet", label: "Midnight Violet", preview: "#15101e" },
+export const SURFACES: { id: Surface; label: string; preview: string; light: boolean }[] = [
+  // Dunkel
+  { id: "slate",    label: "Slate (Default)",    preview: "#0f1218", light: false },
+  { id: "black",    label: "OLED Black",         preview: "#000000", light: false },
+  { id: "blue",     label: "Deep Blue",          preview: "#0a1428", light: false },
+  { id: "warm",     label: "Warm Charcoal",      preview: "#1a1612", light: false },
+  { id: "forest",   label: "Forest Night",       preview: "#0a1812", light: false },
+  { id: "violet",   label: "Midnight Violet",    preview: "#15101e", light: false },
+  // Hell
+  { id: "snow",     label: "Snow",               preview: "#ffffff", light: true },
+  { id: "cream",    label: "Cream",              preview: "#f8f3e9", light: true },
+  { id: "mint",     label: "Mint",               preview: "#eff7f1", light: true },
+  { id: "lavender", label: "Lavender",           preview: "#f3eef9", light: true },
+  { id: "sand",     label: "Sand",               preview: "#f5efe5", light: true },
 ];
 
 type Ctx = {

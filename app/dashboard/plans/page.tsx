@@ -134,7 +134,7 @@ export default function PlansPage() {
                     <div style={{ fontSize: 36 }}>{SPORT_ICONS[sport]}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
-                        <h3 style={{ fontSize: 18, fontStyle: "italic" }}>{p.name}</h3>
+                        <h3 style={{ fontSize: 18 }}>{p.name}</h3>
                         {isActive && (
                           <span className="sport-pill animate-pop" style={{ background: "var(--accent-tint)", color: "var(--accent)", border: "1px solid var(--accent)" }}>
                             AKTIV
@@ -176,7 +176,7 @@ export default function PlansPage() {
               <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
                 <div style={{ fontSize: 36 }}>{SPORT_ICONS[sport]}</div>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: 18, fontStyle: "italic", marginBottom: 4 }}>{t.name}</h3>
+                  <h3 style={{ fontSize: 18, marginBottom: 4 }}>{t.name}</h3>
                   <div style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 10, lineHeight: 1.5 }}>
                     {t.description}
                   </div>

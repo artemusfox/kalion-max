@@ -5,11 +5,25 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
+import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { theme, setTheme, surface, setSurface } = useTheme();
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  useEffect(() => {
+    setVoiceSupported(isVoiceSupported());
+    setVoiceOn(isVoiceEnabled());
+  }, []);
+  function toggleVoice() {
+    const next = !voiceOn;
+    setVoiceEnabled(next);
+    setVoiceOn(next);
+    if (next) speak("Sprachausgabe ist aktiviert");
+    toast(next ? "Sprache an" : "Sprache aus", { type: "success", icon: next ? "🔊" : "🔇" });
+  }
   const [profile, setProfile] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -167,45 +181,79 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🌑 Hintergrund</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Hintergrund</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
-          Stimmung der dunklen Flächen — Body und Karten.
+          Stimmung der Flächen — Body und Karten.
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
-          {SURFACES.map((s) => {
-            const active = surface === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: "🌑" }); }}
-                style={{
-                  padding: 12,
-                  borderRadius: 12,
-                  border: active ? "2px solid var(--accent)" : "1px solid var(--border)",
-                  background: active ? "var(--accent-tint)" : "var(--bg-elevated)",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  color: "var(--text)",
-                  textAlign: "left",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                }}
-              >
-                <div style={{
-                  width: 22, height: 22, borderRadius: 6,
-                  background: s.preview,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  flexShrink: 0,
-                }} />
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700 }}>{s.label}</div>
-                  {active && <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>aktiv</div>}
-                </div>
-              </button>
-            );
-          })}
+
+        {(["Dunkel", "Hell"] as const).map((group) => {
+          const items = SURFACES.filter((s) => group === "Hell" ? s.light : !s.light);
+          return (
+            <div key={group} style={{ marginBottom: group === "Dunkel" ? 18 : 0 }}>
+              <div style={{
+                fontSize: 10, color: "var(--text-muted)", fontWeight: 800,
+                letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8,
+              }}>{group === "Dunkel" ? "🌑 Dunkel" : "☀️ Hell"}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+                {items.map((s) => {
+                  const active = surface === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: s.light ? "☀️" : "🌑" }); }}
+                      style={{
+                        padding: 12,
+                        borderRadius: 12,
+                        border: active ? "2px solid var(--accent)" : "1px solid var(--border)",
+                        background: active ? "var(--accent-tint)" : "var(--bg-elevated)",
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        color: "var(--text)",
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                      }}
+                    >
+                      <div style={{
+                        width: 22, height: 22, borderRadius: 6,
+                        background: s.preview,
+                        border: "1px solid rgba(127,127,127,0.3)",
+                        flexShrink: 0,
+                      }} />
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700 }}>{s.label}</div>
+                        {active && <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>aktiv</div>}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🔊 Workout-Sprachausgabe</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
+          {voiceSupported
+            ? "Beim Pausen-Timer wird der Countdown laut angesagt — freihändig im Gym."
+            : "Dein Browser unterstützt keine Sprachausgabe."}
         </div>
+        <button
+          onClick={toggleVoice}
+          disabled={!voiceSupported}
+          className="btn btn-block"
+          style={{
+            border: voiceOn ? "1px solid var(--accent)" : "1px solid var(--border)",
+            background: voiceOn ? "var(--accent-tint)" : "var(--bg-elevated)",
+            color: voiceOn ? "var(--accent)" : "var(--text)",
+            opacity: voiceSupported ? 1 : 0.5,
+          }}
+        >
+          {voiceOn ? "🔊 Sprache an — antippen zum Deaktivieren" : "🔇 Sprache aus — antippen zum Aktivieren"}
+        </button>
       </div>
 
       <div className="card">

@@ -97,7 +97,7 @@ function TodayDashboard() {
         }}>
           <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>Kalorien</div>
           <div style={{
-            fontSize: 60, fontFamily: "var(--font-display)", fontStyle: "italic",
+            fontSize: 60, fontFamily: "var(--font-display)",
             fontWeight: 800, color: "var(--accent)", letterSpacing: -2, lineHeight: 1, marginTop: 8,
           }}>{Math.round(totals.cal)}<span style={{ fontSize: 18, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)", marginLeft: 6 }}>kcal</span></div>
           <div style={{ fontSize: 12, color: "var(--text-dim)", fontWeight: 700, marginTop: 6 }}>
@@ -117,7 +117,7 @@ function TodayDashboard() {
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>💧 Wasser heute</div>
         <div style={{ textAlign: "center", marginBottom: 16 }}>
           <div style={{
-            fontSize: 52, fontFamily: "var(--font-display)", fontStyle: "italic",
+            fontSize: 52, fontFamily: "var(--font-display)",
             fontWeight: 800, color: "var(--blue)", letterSpacing: -2, lineHeight: 1,
           }}>{waterMl}<span style={{ fontSize: 16, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)", marginLeft: 4 }}>ml</span></div>
           <div style={{ fontSize: 12, color: "var(--text-dim)", fontWeight: 700, marginTop: 4 }}>
@@ -365,7 +365,7 @@ function FoodPicker({ mealType, date, onClose, onDone }: {
       }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <div>
-            <h3 style={{ fontSize: 20, fontStyle: "italic" }}>
+            <h3 style={{ fontSize: 20 }}>
               {MEAL_TYPES[mealType].icon} {MEAL_TYPES[mealType].label}
             </h3>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
@@ -447,7 +447,7 @@ function FoodPicker({ mealType, date, onClose, onDone }: {
                   background: "var(--accent-tint)", border: "1px solid var(--accent-border)",
                 }}>
                   <div style={{
-                    fontSize: 38, fontFamily: "var(--font-display)", fontStyle: "italic",
+                    fontSize: 38, fontFamily: "var(--font-display)",
                     fontWeight: 800, color: "var(--accent)", letterSpacing: -1, textAlign: "center", lineHeight: 1,
                   }}>{Math.round(selectedFood.calories * s)}<span style={{ fontSize: 14, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)", marginLeft: 4 }}>kcal</span></div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginTop: 14, fontSize: 12, textAlign: "center" }}>
@@ -517,7 +517,7 @@ function CustomFoodForm({ onClose, onDone }: { onClose: () => void; onDone: () =
     <div style={modalOverlay} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 500, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ fontSize: 20, fontStyle: "italic" }}>+ Eigenes Lebensmittel</h3>
+          <h3 style={{ fontSize: 20 }}>+ Eigenes Lebensmittel</h3>
           <button onClick={onClose} className="btn btn-ghost">✕</button>
         </div>
 
@@ -729,7 +729,7 @@ function SupplementsTab() {
             maxWidth: 550, width: "100%", maxHeight: "85vh", overflowY: "auto", margin: 0,
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h3 style={{ fontSize: 20, fontStyle: "italic" }}>✨ Supplement-Vorlagen</h3>
+              <h3 style={{ fontSize: 20 }}>✨ Supplement-Vorlagen</h3>
               <button onClick={() => setShowPresets(false)} className="btn btn-ghost">✕</button>
             </div>
             <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 16 }}>
@@ -803,7 +803,7 @@ function SupplementHistory() {
             padding: "10px 0", borderBottom: "1px solid var(--border)",
           }}>
             <div style={{ width: 52, textAlign: "center", borderRight: "1px solid var(--border)", paddingRight: 12 }}>
-              <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, fontWeight: 800, lineHeight: 1, color: isToday ? "var(--accent)" : "var(--text)" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 800, lineHeight: 1, color: isToday ? "var(--accent)" : "var(--text)" }}>
                 {d.getDate()}
               </div>
               <div style={{ fontSize: 9, color: "var(--text-muted)", fontWeight: 800, letterSpacing: 1, marginTop: 2 }}>
@@ -858,7 +858,7 @@ function SupplementForm({ onClose, onDone }: { onClose: () => void; onDone: () =
     <div style={modalOverlay} onClick={onClose}>
       <div onClick={(e) => e.stopPropagation()} className="card" style={{ maxWidth: 500, width: "100%", maxHeight: "90vh", overflowY: "auto", margin: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ fontSize: 20, fontStyle: "italic" }}>+ Supplement</h3>
+          <h3 style={{ fontSize: 20 }}>+ Supplement</h3>
           <button onClick={onClose} className="btn btn-ghost">✕</button>
         </div>
 
@@ -1045,7 +1045,7 @@ function MacroBox({ label, value, unit, color, icon }: any) {
       <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
       <div style={{ fontSize: 9, color: "var(--text-muted)", letterSpacing: 1, fontWeight: 800, textTransform: "uppercase" }}>{label}</div>
       <div style={{
-        fontSize: 22, fontFamily: "var(--font-display)", fontStyle: "italic",
+        fontSize: 22, fontFamily: "var(--font-display)",
         fontWeight: 800, color, letterSpacing: -0.5, lineHeight: 1, marginTop: 4,
       }}>{value.toFixed(1)}<span style={{ fontSize: 11, color: "var(--text-muted)", fontStyle: "normal", fontFamily: "var(--font-body)" }}>{unit}</span></div>
     </div>
