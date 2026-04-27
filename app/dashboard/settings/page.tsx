@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
+import { useTheme, THEMES } from "@/components/ThemeProvider";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -120,6 +122,48 @@ export default function SettingsPage() {
         <button className="btn btn-primary" onClick={saveProfile} disabled={saving}>
           {saving ? <div className="spinner" /> : "Speichern"}
         </button>
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Design</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+          Wähle deine Akzent-Farbe — wirkt sofort und gilt nur für dich auf diesem Gerät.
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
+          {THEMES.map((t) => {
+            const active = theme === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => { setTheme(t.id); toast(`Theme: ${t.label}`, { type: "success", icon: "🎨" }); }}
+                style={{
+                  padding: 12,
+                  borderRadius: 12,
+                  border: active ? `2px solid ${t.preview}` : "1px solid var(--border)",
+                  background: active ? `${t.preview}15` : "var(--bg-elevated)",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  color: "var(--text)",
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <div style={{
+                  width: 22, height: 22, borderRadius: "50%",
+                  background: `linear-gradient(135deg, ${t.preview}, ${t.preview}88)`,
+                  boxShadow: active ? `0 0 12px ${t.preview}` : "none",
+                  flexShrink: 0,
+                }} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700 }}>{t.label}</div>
+                  {active && <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>aktiv</div>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="card">

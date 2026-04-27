@@ -55,6 +55,50 @@
   --font-mono: 'JetBrains Mono', monospace;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   THEME VARIANTS — überschreibt nur die Accent-Farben
+   ═══════════════════════════════════════════════════════════ */
+
+[data-theme="lime"] {
+  --accent: #A3E635;
+  --accent-2: #22D3EE;
+  --accent-glow: rgba(163,230,53,0.25);
+  --accent-tint: rgba(163,230,53,0.10);
+  --accent-border: rgba(163,230,53,0.35);
+}
+
+[data-theme="purple"] {
+  --accent: #A78BFA;
+  --accent-2: #F472B6;
+  --accent-glow: rgba(167,139,250,0.25);
+  --accent-tint: rgba(167,139,250,0.10);
+  --accent-border: rgba(167,139,250,0.35);
+}
+
+[data-theme="orange"] {
+  --accent: #FB923C;
+  --accent-2: #FFB800;
+  --accent-glow: rgba(251,146,60,0.25);
+  --accent-tint: rgba(251,146,60,0.10);
+  --accent-border: rgba(251,146,60,0.35);
+}
+
+[data-theme="rose"] {
+  --accent: #F472B6;
+  --accent-2: #FF5A6B;
+  --accent-glow: rgba(244,114,182,0.25);
+  --accent-tint: rgba(244,114,182,0.10);
+  --accent-border: rgba(244,114,182,0.35);
+}
+
+[data-theme="mono"] {
+  --accent: #E5E7EB;
+  --accent-2: #9CA3AF;
+  --accent-glow: rgba(229,231,235,0.20);
+  --accent-tint: rgba(229,231,235,0.06);
+  --accent-border: rgba(229,231,235,0.25);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {

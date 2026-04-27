@@ -173,7 +173,7 @@ function Stat({ label, value, color, icon }: any) {
     <div style={{ padding: 14, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
       <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
       <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 800 }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 26, fontWeight: 800, color, letterSpacing: -1, lineHeight: 1, marginTop: 4 }}>{value}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1, marginTop: 4 }}>{value}</div>
     </div>
   );
 }
