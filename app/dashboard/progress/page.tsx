@@ -8,10 +8,11 @@ import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
 import VolumeHeatmap from "@/components/VolumeHeatmap";
 import ExerciseChart from "@/components/ExerciseChart";
+import YearHeatmap from "@/components/YearHeatmap";
 
 export default function ProgressPage() {
   const { toast } = useToast();
-  const [tab, setTab] = useState<"prs" | "charts" | "heatmap" | "streak" | "tools">("prs");
+  const [tab, setTab] = useState<"prs" | "charts" | "heatmap" | "year" | "streak" | "tools">("prs");
   const [prs, setPrs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -40,11 +41,12 @@ export default function ProgressPage() {
   return (
     <div>
       <div style={tabsStyle}>
-        {(["prs", "charts", "heatmap", "streak", "tools"] as const).map((t) => (
+        {(["prs", "charts", "heatmap", "year", "streak", "tools"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} style={tabBtn(tab === t)}>
             {t === "prs" ? "🏆 PRs" :
              t === "charts" ? "📈 Charts" :
-             t === "heatmap" ? "🔥 Heatmap" :
+             t === "heatmap" ? "🔥 Muskeln" :
+             t === "year" ? "📅 Jahr" :
              t === "streak" ? "🔥 Streak" : "🧮 Tools"}
           </button>
         ))}
@@ -122,6 +124,14 @@ export default function ProgressPage() {
             So gleichmäßig hast du deine Muskelgruppen trainiert.
           </div>
           <VolumeHeatmap />
+        </div>
+      ) : tab === "year" ? (
+        <div className="card">
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>📅 Jahres-Heatmap</div>
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+            Letzte 365 Tage — heller Quadrate, mehr Volumen an dem Tag.
+          </div>
+          <YearHeatmap />
         </div>
       ) : tab === "streak" ? (
         <div className="card">

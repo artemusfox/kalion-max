@@ -8,6 +8,7 @@ import { SPORT_COLORS, type PlanExercise, type Exercise, type TrackingMode } fro
 import { useToast } from "@/components/Toast";
 import { suggestNextTargets, buildHistoryMap, type Suggestion } from "@/lib/auto-progression";
 import { speak, primeVoice } from "@/lib/voice";
+import Confetti from "@/components/Confetti";
 
 type SetData = {
   reps?: number;
@@ -54,6 +55,8 @@ export default function WorkoutSession({
   const [saving, setSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [suggestions, setSuggestions] = useState<Record<string, Suggestion>>({});
+  const [prMap, setPrMap] = useState<Record<string, number>>({}); // exerciseId → bisheriger Bestwert
+  const [confettiKey, setConfettiKey] = useState(0);
   const restIntervalRef = useRef<any>(null);
 
   // Auto-Progression: Lade letzte Workouts → History-Map → setze Initial-Targets
@@ -88,6 +91,17 @@ export default function WorkoutSession({
         };
       }));
       setSuggestions(sug);
+
+      // PRs laden
+      const { data: prs } = await supabase
+        .from("personal_records")
+        .select("exercise_id, value");
+      const map: Record<string, number> = {};
+      for (const r of (prs || []) as any[]) {
+        const v = Number(r.value) || 0;
+        if (v > (map[r.exercise_id] || 0)) map[r.exercise_id] = v;
+      }
+      setPrMap(map);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -120,7 +134,48 @@ export default function WorkoutSession({
       if (!(isLastSetOfEx && isLastEx) && ex.rest && ex.rest > 0) {
         startRest(ex.rest);
       }
+      // PR-Check (asynchron, blockiert nicht)
+      checkForPR(setIdx);
     }
+  }
+
+  async function checkForPR(setIdx: number) {
+    const set = ex.sets[setIdx];
+    const tracking = ex.exercise.tracking;
+    let value: number | undefined;
+    let unit: string;
+
+    if (tracking === "reps_weight") { value = set.weight; unit = "kg"; }
+    else if (tracking === "reps_only") { value = set.reps; unit = "reps"; }
+    else if (tracking === "time") { value = set.time; unit = "s"; }
+    else if (tracking === "distance") { value = set.distance; unit = "m"; }
+    else return;
+
+    if (!value || value <= 0) return;
+    const current = prMap[ex.exercise.id] || 0;
+    if (value <= current) return;
+
+    // Neuer PR! Optimistisch updaten
+    setPrMap((m) => ({ ...m, [ex.exercise.id]: value! }));
+    setConfettiKey((k) => k + 1);
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([60, 30, 60, 30, 100]);
+    speak("Neuer Rekord!");
+    toast(`Neuer Rekord: ${value} ${unit} bei ${ex.exercise.name}!`, { type: "success", icon: "🏆" });
+
+    // In DB speichern
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("personal_records").insert({
+      user_id: user.id,
+      exercise_id: ex.exercise.id,
+      exercise_name: ex.exercise.name,
+      record_type: tracking === "reps_weight" ? "max_weight" : tracking === "reps_only" ? "max_reps" : tracking === "time" ? "max_time" : "max_distance",
+      value,
+      reps: set.reps ?? null,
+      unit,
+      notes: "Auto-erkannt im Workout",
+    });
   }
 
   function startRest(sec: number) {
@@ -291,6 +346,7 @@ export default function WorkoutSession({
 
   return (
     <div style={overlayStyle}>
+      <Confetti trigger={confettiKey} />
       {/* Header */}
       <div style={headerStyle}>
         <button onClick={() => {

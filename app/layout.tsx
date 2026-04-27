@@ -7,6 +7,12 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   title: "KALION MAX",
   description: "Trainings-App für alle Sportarten · Plan · Tracking · Fortschritt",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Kalion Max",
+  },
+  formatDetection: { telephone: false },
 };
 
 export const viewport = {
