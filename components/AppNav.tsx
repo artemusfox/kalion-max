@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 
-export default function AppNav() {
+export default function AppNav({ userName }: { userName?: string | null } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
