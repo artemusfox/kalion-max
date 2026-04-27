@@ -55,7 +55,11 @@ export default function SettingsPage() {
     if (!confirm("Bist du absolut sicher?")) return;
     const supabase = createClient();
     // Der Server muss den User löschen — wir rufen einen RPC auf
-    await supabase.rpc("delete_own_account").catch(() => {});
+    try {
+      await supabase.rpc("delete_own_account");
+    } catch {
+      // Fehler ignorieren — Logout erfolgt trotzdem
+    }
     await supabase.auth.signOut();
     router.push("/");
   }
