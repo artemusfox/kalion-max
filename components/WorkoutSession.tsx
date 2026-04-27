@@ -15,7 +15,7 @@ type SetData = {
   done: boolean;
 };
 
-type ExState = PlanExercise & {
+type ExState = Omit<PlanExercise, "sets"> & {
   exercise: Exercise;
   sets: SetData[];
 };
