@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-client";
 import { EX_BY_ID } from "@/lib/exercises";
 import { SPORT_COLORS, type PlanExercise, type Exercise, type TrackingMode } from "@/lib/types";
 import { useToast } from "@/components/Toast";
+import { suggestNextTargets, buildHistoryMap, type Suggestion } from "@/lib/auto-progression";
 
 type SetData = {
   reps?: number;
@@ -51,7 +52,44 @@ export default function WorkoutSession({
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [suggestions, setSuggestions] = useState<Record<string, Suggestion>>({});
   const restIntervalRef = useRef<any>(null);
+
+  // Auto-Progression: Lade letzte Workouts → History-Map → setze Initial-Targets
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from("workouts")
+        .select("exercises_data, started_at")
+        .order("started_at", { ascending: false })
+        .limit(30);
+      if (!data) return;
+      const history = buildHistoryMap(data as any);
+      const sug: Record<string, Suggestion> = {};
+      setSession((prev) => prev.map((es) => {
+        const last = history[es.exercise.id] || null;
+        const s = suggestNextTargets(last, es.exercise.tracking, {
+          reps: es.targetReps, weight: es.targetWeight,
+          time: es.targetTime, distance: es.targetDistance,
+        });
+        sug[es.exercise.id] = s;
+        // Nur Sets überschreiben, die noch nicht angefasst wurden
+        return {
+          ...es,
+          sets: es.sets.map((set) => set.done ? set : {
+            ...set,
+            reps: s.reps ?? set.reps,
+            weight: s.weight ?? set.weight,
+            time: s.time ?? set.time,
+            distance: s.distance ?? set.distance,
+          }),
+        };
+      }));
+      setSuggestions(sug);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const iv = setInterval(() => setElapsed(Math.floor((Date.now() - startTime) / 1000)), 1000);
@@ -279,10 +317,18 @@ export default function WorkoutSession({
           </h2>
           {ex.exercise.tip && (
             <div style={{
-              fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5, marginBottom: 20,
+              fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5, marginBottom: 12,
               padding: "12px 14px", background: "var(--surface)", borderRadius: 12,
               borderLeft: "3px solid var(--accent)",
             }}>💡 {ex.exercise.tip}</div>
+          )}
+
+          {suggestions[ex.exercise.id]?.reason && (
+            <div style={{
+              fontSize: 12, color: "var(--accent)", lineHeight: 1.4, marginBottom: 20,
+              padding: "10px 12px", background: "var(--accent-tint)", borderRadius: 10,
+              border: "1px solid var(--accent-border)", fontWeight: 700,
+            }}>⚡ Auto-Vorschlag: {suggestions[ex.exercise.id].reason}</div>
           )}
 
           {/* Sets */}

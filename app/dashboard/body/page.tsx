@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
+import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 
 const MEASUREMENTS = [
   { key: "weight",  label: "Gewicht",      unit: "kg", icon: "⚖️", color: "#2DD4BF" },
@@ -276,6 +277,14 @@ export default function BodyPage() {
                 })}
               </div>
             )}
+          </div>
+
+          <div className="card">
+            <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>↔ Vorher / Nachher</div>
+            <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+              Wische über das Bild, um zwei Fotos direkt zu vergleichen.
+            </div>
+            <BeforeAfterSlider photos={photos} />
           </div>
         </>
       )}

@@ -6,10 +6,12 @@ import { EXERCISES, EX_BY_ID } from "@/lib/exercises";
 import { SPORT_COLORS, SPORT_LABELS, SPORT_ICONS, type Sport } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
+import VolumeHeatmap from "@/components/VolumeHeatmap";
+import ExerciseChart from "@/components/ExerciseChart";
 
 export default function ProgressPage() {
   const { toast } = useToast();
-  const [tab, setTab] = useState<"prs" | "streak" | "tools">("prs");
+  const [tab, setTab] = useState<"prs" | "charts" | "heatmap" | "streak" | "tools">("prs");
   const [prs, setPrs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -38,9 +40,12 @@ export default function ProgressPage() {
   return (
     <div>
       <div style={tabsStyle}>
-        {(["prs", "streak", "tools"] as const).map((t) => (
+        {(["prs", "charts", "heatmap", "streak", "tools"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} style={tabBtn(tab === t)}>
-            {t === "prs" ? "🏆 Records" : t === "streak" ? "🔥 Streak" : "🧮 Tools"}
+            {t === "prs" ? "🏆 PRs" :
+             t === "charts" ? "📈 Charts" :
+             t === "heatmap" ? "🔥 Heatmap" :
+             t === "streak" ? "🔥 Streak" : "🧮 Tools"}
           </button>
         ))}
       </div>
@@ -102,6 +107,22 @@ export default function ProgressPage() {
             })
           )}
         </>
+      ) : tab === "charts" ? (
+        <div className="card">
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>📈 Verlauf pro Übung</div>
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+            Gewicht und Volumen über Zeit — wähle eine Übung, um Plateaus und Spikes zu sehen.
+          </div>
+          <ExerciseChart />
+        </div>
+      ) : tab === "heatmap" ? (
+        <div className="card">
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🔥 Volume-Heatmap</div>
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+            So gleichmäßig hast du deine Muskelgruppen trainiert.
+          </div>
+          <VolumeHeatmap />
+        </div>
       ) : tab === "streak" ? (
         <div className="card">
           <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>🔥 Streak-Statistik</div>
