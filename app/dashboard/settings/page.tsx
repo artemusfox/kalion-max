@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
-import { useTheme, THEMES } from "@/components/ThemeProvider";
+import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 
 export default function SettingsPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, surface, setSurface } = useTheme();
   const [profile, setProfile] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -125,9 +125,9 @@ export default function SettingsPage() {
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Design</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Akzent-Farbe</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
-          Wähle deine Akzent-Farbe — wirkt sofort und gilt nur für dich auf diesem Gerät.
+          Wirkt sofort und gilt nur für dich auf diesem Gerät.
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
           {THEMES.map((t) => {
@@ -158,6 +158,48 @@ export default function SettingsPage() {
                 }} />
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 700 }}>{t.label}</div>
+                  {active && <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>aktiv</div>}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🌑 Hintergrund</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+          Stimmung der dunklen Flächen — Body und Karten.
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+          {SURFACES.map((s) => {
+            const active = surface === s.id;
+            return (
+              <button
+                key={s.id}
+                onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: "🌑" }); }}
+                style={{
+                  padding: 12,
+                  borderRadius: 12,
+                  border: active ? "2px solid var(--accent)" : "1px solid var(--border)",
+                  background: active ? "var(--accent-tint)" : "var(--bg-elevated)",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  color: "var(--text)",
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <div style={{
+                  width: 22, height: 22, borderRadius: 6,
+                  background: s.preview,
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  flexShrink: 0,
+                }} />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700 }}>{s.label}</div>
                   {active && <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>aktiv</div>}
                 </div>
               </button>

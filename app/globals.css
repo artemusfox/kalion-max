@@ -99,6 +99,45 @@
   --accent-border: rgba(229,231,235,0.25);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   SURFACE (Background) VARIANTS — Body-BG + Karten-Töne
+   ═══════════════════════════════════════════════════════════ */
+
+[data-bg="black"] {
+  --bg: #000000;
+  --bg-2: #080808;
+  --bg-raised: #121212;
+  --bg-elevated: #1a1a1a;
+}
+
+[data-bg="blue"] {
+  --bg: #0a1428;
+  --bg-2: #0f1d3a;
+  --bg-raised: #15264a;
+  --bg-elevated: #1c305a;
+}
+
+[data-bg="warm"] {
+  --bg: #1a1612;
+  --bg-2: #221d18;
+  --bg-raised: #2c251f;
+  --bg-elevated: #362e26;
+}
+
+[data-bg="forest"] {
+  --bg: #0a1812;
+  --bg-2: #0f2018;
+  --bg-raised: #142a20;
+  --bg-elevated: #1b3528;
+}
+
+[data-bg="violet"] {
+  --bg: #15101e;
+  --bg-2: #1d1729;
+  --bg-raised: #271f37;
+  --bg-elevated: #322846;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html, body {
