@@ -94,7 +94,7 @@ export default async function AdminUsersPage() {
   );
 }
 
-function Th({ children }: { children: React.ReactNode }) {
+function Th({ children }: { children?: React.ReactNode }) {
   return <th style={{
     textAlign: "left", padding: "10px 14px", fontSize: 10,
     fontWeight: 800, color: "var(--text-muted)", letterSpacing: 1,
