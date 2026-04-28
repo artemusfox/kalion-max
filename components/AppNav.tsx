@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 
-export default function AppNav({ userName }: { userName?: string | null } = {}) {
+export default function AppNav({ userName, isAdmin }: { userName?: string | null; isAdmin?: boolean | null } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -48,6 +48,12 @@ export default function AppNav({ userName }: { userName?: string | null } = {}) 
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        {isAdmin && (
+          <Link href="/dashboard/admin" className="btn btn-ghost" style={{
+            padding: "6px 10px", fontSize: 11, fontWeight: 800,
+            border: "1px solid var(--accent-border)", color: "var(--accent)",
+          }}>🛡️ Admin</Link>
+        )}
         <Link href="/dashboard/settings" className="btn btn-ghost" style={{ padding: "8px 12px" }}>⚙️</Link>
         <button onClick={handleLogout} className="btn btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}>
           Logout

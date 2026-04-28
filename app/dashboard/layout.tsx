@@ -10,13 +10,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name")
+    .select("display_name, is_admin")
     .eq("id", user.id)
     .single();
 
   return (
     <>
-      <AppNav userName={profile?.display_name} />
+      <AppNav userName={profile?.display_name} isAdmin={profile?.is_admin} />
       <div className="container page-content">{children}</div>
       <LegalFooter />
     </>
