@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { translateAuthError } from "@/lib/auth-errors";
+import { getAalState } from "@/lib/mfa";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,11 +26,19 @@ export default function LoginPage() {
     if (error) {
       setError(translateAuthError(error.message));
       setLoading(false);
-    } else {
-      toast("Willkommen zurück! ⚡", { type: "success" });
-      router.push("/dashboard");
-      router.refresh();
+      return;
     }
+
+    // Prüfe AAL-Level: User mit MFA muss erst Code eingeben
+    const aal = await getAalState(supabase);
+    if (aal.needsChallenge) {
+      router.push("/auth/mfa-challenge?next=/dashboard");
+      return;
+    }
+
+    toast("Willkommen zurück! ⚡", { type: "success" });
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (

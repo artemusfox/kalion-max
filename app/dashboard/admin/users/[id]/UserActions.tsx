@@ -46,6 +46,17 @@ export default function UserActions({
     router.push("/dashboard/admin/users");
   }
 
+  async function resetMfa() {
+    if (!confirm(`2FA von "${userName || userEmail}" zurücksetzen? Der User muss sich danach neu einrichten.`)) return;
+    setBusy(true);
+    const supabase = createClient();
+    const { data, error } = await supabase.rpc("admin_remove_user_mfa", { p_user_id: userId });
+    setBusy(false);
+    if (error) { toast("Fehler: " + error.message, { type: "error" }); return; }
+    toast(`2FA zurückgesetzt (${data ?? 0} Faktor${data === 1 ? "" : "en"})`, { type: "success", icon: "🔓" });
+    router.refresh();
+  }
+
   return (
     <div className="card">
       <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 14 }}>🛡️ Account-Management</div>
@@ -61,6 +72,14 @@ export default function UserActions({
           }}
         >
           {isAdmin ? "🛡️ Admin entziehen" : "🛡️ Admin machen"}
+        </button>
+
+        <button
+          className="btn btn-block"
+          onClick={resetMfa}
+          disabled={busy}
+        >
+          🔓 2FA zurücksetzen
         </button>
 
         <button

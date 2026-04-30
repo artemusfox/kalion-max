@@ -33,7 +33,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  // /auth/mfa-challenge ist eine Sondersituation: User IST eingeloggt, muss aber
+  // noch den 2. Faktor verifizieren. Nicht zum Dashboard umleiten.
+  const isMfaChallenge = request.nextUrl.pathname.startsWith("/auth/mfa-challenge");
+
+  if (user && isAuthPage && !isMfaChallenge) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);

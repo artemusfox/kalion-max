@@ -6,11 +6,15 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
+import MfaSettings from "@/components/MfaSettings";
+import { useSearchParams } from "next/navigation";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { theme, setTheme, surface, setSurface } = useTheme();
+  const mfaRequired = searchParams.get("mfa-required") === "1";
   const [voiceOn, setVoiceOn] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
   useEffect(() => {
@@ -254,6 +258,14 @@ export default function SettingsPage() {
         >
           {voiceOn ? "🔊 Sprache an — antippen zum Deaktivieren" : "🔇 Sprache aus — antippen zum Aktivieren"}
         </button>
+      </div>
+
+      <div className="card" style={mfaRequired ? { borderColor: "var(--accent)" } : {}}>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🔐 Zwei-Faktor-Authentifizierung</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
+          Zusätzlicher Schutz beim Login: 6-stelliger Code aus deiner Authenticator-App.
+        </div>
+        <MfaSettings requiresMfa={!!profile?.is_admin} />
       </div>
 
       <div className="card">
