@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { getFirstVerifiedFactorId, getAalState } from "@/lib/mfa";
+import { normalizeCode } from "@/lib/recovery-codes";
 
 export default function MfaChallengePage() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function MfaChallengePage() {
   const next = params.get("next") || "/dashboard";
   const { toast } = useToast();
   const [code, setCode] = useState("");
+  const [recoveryCode, setRecoveryCode] = useState("");
+  const [mode, setMode] = useState<"totp" | "recovery">("totp");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [factorId, setFactorId] = useState<string | null>(null);
@@ -53,6 +56,26 @@ export default function MfaChallengePage() {
     router.refresh();
   }
 
+  async function submitRecovery(e: React.FormEvent) {
+    e.preventDefault();
+    const cleaned = normalizeCode(recoveryCode);
+    if (!cleaned) return;
+    setBusy(true); setError(null);
+    const supabase = createClient();
+    const { data, error: rpcErr } = await supabase.rpc("mfa_consume_recovery_code", { p_code: cleaned });
+    setBusy(false);
+    if (rpcErr) { setError("Fehler beim Einlösen — versuche nochmal"); return; }
+    if (!data) {
+      setError("Code ungültig oder bereits verwendet");
+      setRecoveryCode("");
+      return;
+    }
+    toast("2FA wurde zurückgesetzt — bitte neu einrichten", { type: "success", icon: "🔓" });
+    // Session ist nun aal1, aber kein Faktor mehr → AAL-Check wird durchgehen
+    router.replace(next.includes("/admin") ? "/dashboard/settings?mfa-required=1" : next);
+    router.refresh();
+  }
+
   async function logout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -69,49 +92,84 @@ export default function MfaChallengePage() {
             <span className="brand-max">MAX</span>
           </div>
           <div className="auth-title">🔐 Zwei-Faktor</div>
-          <div className="auth-sub">Code aus deiner Authenticator-App</div>
+          <div className="auth-sub">
+            {mode === "totp" ? "Code aus deiner Authenticator-App" : "Notfall-Code eingeben"}
+          </div>
         </div>
 
-        <form onSubmit={submit}>
-          <input
-            className="form-input"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            maxLength={6}
-            value={code}
-            onChange={(e) => { setCode(e.target.value.replace(/\D/g, "")); setError(null); }}
-            placeholder="000000"
-            autoFocus
-            autoComplete="one-time-code"
-            style={{
-              fontSize: 26, textAlign: "center", letterSpacing: 10,
-              fontFamily: "var(--font-mono)", marginBottom: 16,
-            }}
-          />
+        {mode === "totp" ? (
+          <form onSubmit={submit}>
+            <input
+              className="form-input"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={code}
+              onChange={(e) => { setCode(e.target.value.replace(/\D/g, "")); setError(null); }}
+              placeholder="000000"
+              autoFocus
+              autoComplete="one-time-code"
+              style={{
+                fontSize: 26, textAlign: "center", letterSpacing: 10,
+                fontFamily: "var(--font-mono)", marginBottom: 16,
+              }}
+            />
 
-          {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
+            {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
 
+            <button
+              type="submit"
+              className="btn btn-primary btn-block"
+              disabled={busy || code.length !== 6 || !factorId}
+            >
+              {busy ? <div className="spinner" /> : "Bestätigen"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={submitRecovery}>
+            <input
+              className="form-input"
+              value={recoveryCode}
+              onChange={(e) => { setRecoveryCode(e.target.value); setError(null); }}
+              placeholder="abcde-fghij"
+              autoFocus
+              autoComplete="off"
+              style={{
+                fontSize: 18, textAlign: "center", letterSpacing: 2,
+                fontFamily: "var(--font-mono)", marginBottom: 14,
+              }}
+            />
+
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5, padding: "0 4px" }}>
+              ⚠️ Ein Notfall-Code <strong>setzt deine 2FA zurück</strong>. Du wirst danach zum Settings geleitet, um sie neu einzurichten.
+            </div>
+
+            {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-block"
+              disabled={busy || normalizeCode(recoveryCode).length < 6}
+            >
+              {busy ? <div className="spinner" /> : "Code einlösen"}
+            </button>
+          </form>
+        )}
+
+        <div className="auth-switch" style={{ marginTop: 14, display: "flex", gap: 12, justifyContent: "center" }}>
           <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            disabled={busy || code.length !== 6 || !factorId}
+            onClick={() => { setMode(mode === "totp" ? "recovery" : "totp"); setError(null); setCode(""); setRecoveryCode(""); }}
+            className="btn btn-ghost"
+            style={{ fontSize: 12 }}
           >
-            {busy ? <div className="spinner" /> : "Bestätigen"}
+            {mode === "totp" ? "🆘 Notfall-Code verwenden" : "← Zurück zum App-Code"}
           </button>
-        </form>
+        </div>
 
-        <div className="auth-switch" style={{ marginTop: 14 }}>
+        <div className="auth-switch" style={{ marginTop: 8 }}>
           <button onClick={logout} className="btn btn-ghost" style={{ fontSize: 12 }}>
             Abbrechen / Logout
           </button>
-        </div>
-
-        <div style={{
-          marginTop: 16, padding: 10, background: "var(--bg-elevated)",
-          borderRadius: 8, fontSize: 11, color: "var(--text-dim)", lineHeight: 1.5,
-        }}>
-          Authenticator weg? Ein Admin kann dein 2FA zurücksetzen — schreib uns an{" "}
-          <Link href="/" style={{ color: "var(--accent)" }}>support</Link>.
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
+import { generateRecoveryCodeBatch } from "@/lib/recovery-codes";
 
 type EnrollData = { factorId: string; qrCode: string; secret: string };
 
@@ -14,6 +15,9 @@ export default function MfaSettings({ requiresMfa }: { requiresMfa?: boolean }) 
   const [enroll, setEnroll] = useState<EnrollData | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
+  const [recoveryRemaining, setRecoveryRemaining] = useState<number | null>(null);
+  const [acknowledged, setAcknowledged] = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -23,7 +27,25 @@ export default function MfaSettings({ requiresMfa }: { requiresMfa?: boolean }) 
     const { data } = await supabase.auth.mfa.listFactors();
     const verified = (data?.totp ?? []).some((f: any) => f.status === "verified");
     setHasMfa(verified);
+    if (verified) {
+      const { data: count } = await supabase.rpc("mfa_recovery_codes_remaining");
+      setRecoveryRemaining(typeof count === "number" ? count : null);
+    } else {
+      setRecoveryRemaining(null);
+    }
     setLoading(false);
+  }
+
+  async function generateAndShowRecoveryCodes() {
+    setBusy(true);
+    const supabase = createClient();
+    const codes = generateRecoveryCodeBatch(8);
+    const { error } = await supabase.rpc("mfa_generate_recovery_codes", { p_codes: codes });
+    setBusy(false);
+    if (error) { toast("Recovery-Codes konnten nicht erstellt werden: " + error.message, { type: "error" }); return; }
+    setRecoveryCodes(codes);
+    setRecoveryRemaining(codes.length);
+    setAcknowledged(false);
   }
 
   async function startEnrollment() {
@@ -76,6 +98,8 @@ export default function MfaSettings({ requiresMfa }: { requiresMfa?: boolean }) 
     setEnroll(null);
     setCode("");
     setHasMfa(true);
+    // Direkt im Anschluss Recovery-Codes generieren und anzeigen
+    await generateAndShowRecoveryCodes();
   }
 
   async function disableMfa() {
@@ -96,6 +120,88 @@ export default function MfaSettings({ requiresMfa }: { requiresMfa?: boolean }) 
   }
 
   if (loading) return <div style={{ padding: 20, textAlign: "center" }}><div className="spinner" style={{ margin: "0 auto" }} /></div>;
+
+  // Recovery-Codes Anzeige (einmalig nach Generierung)
+  if (recoveryCodes) {
+    async function copyAll() {
+      try {
+        await navigator.clipboard.writeText((recoveryCodes ?? []).join("\n"));
+        toast("In Zwischenablage kopiert", { type: "success", icon: "📋" });
+      } catch {
+        toast("Kopieren fehlgeschlagen", { type: "error" });
+      }
+    }
+    function downloadTxt() {
+      const content = `KALION MAX — 2FA Recovery-Codes\nGeneriert: ${new Date().toLocaleString("de-DE")}\n\nJeder Code ist EINMALIG nutzbar.\nVerwende einen davon, falls du deinen Authenticator verlierst.\n\n${(recoveryCodes ?? []).join("\n")}\n`;
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kalion-recovery-codes-${new Date().toISOString().slice(0, 10)}.txt`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    return (
+      <div style={{ padding: 4 }}>
+        <div style={{
+          padding: 12, background: "var(--accent-tint)", border: "1px solid var(--accent-border)",
+          borderRadius: 10, marginBottom: 14, fontSize: 12, color: "var(--accent)", lineHeight: 1.5,
+        }}>
+          🔐 <strong>Notfall-Codes erstellt.</strong> Jeder Code ist <strong>einmalig</strong> nutzbar.
+          Verwende einen davon, falls du deinen Authenticator verlierst — du musst 2FA danach neu einrichten.
+          <br /><br />
+          <strong>⚠️ Werden NICHT erneut angezeigt.</strong> Speichere sie jetzt in deinem Passwort-Manager oder druck sie aus.
+        </div>
+
+        <div style={{
+          padding: 14, background: "var(--bg-elevated)", borderRadius: 10,
+          border: "1px solid var(--border)", marginBottom: 14,
+        }}>
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+            gap: 8, fontFamily: "var(--font-mono)", fontSize: 14,
+          }}>
+            {recoveryCodes.map((c, i) => (
+              <div key={i} style={{
+                padding: "8px 10px", background: "var(--bg)",
+                borderRadius: 6, border: "1px solid var(--border)",
+                letterSpacing: 1, textAlign: "center", fontWeight: 700,
+              }}>{c}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+          <button className="btn" onClick={copyAll}>📋 Kopieren</button>
+          <button className="btn" onClick={downloadTxt}>⬇️ Als .txt</button>
+        </div>
+
+        <label style={{
+          display: "flex", alignItems: "center", gap: 10, padding: 10,
+          background: "var(--bg-elevated)", border: "1px solid var(--border)",
+          borderRadius: 8, cursor: "pointer", marginBottom: 12,
+        }}>
+          <input
+            type="checkbox"
+            checked={acknowledged}
+            onChange={(e) => setAcknowledged(e.target.checked)}
+            style={{ width: 18, height: 18, cursor: "pointer" }}
+          />
+          <span style={{ fontSize: 12 }}>Ich habe die Codes sicher gespeichert.</span>
+        </label>
+
+        <button
+          className="btn btn-primary btn-block"
+          disabled={!acknowledged}
+          onClick={() => {
+            setRecoveryCodes(null);
+            setAcknowledged(false);
+            toast("Codes gespeichert", { type: "success", icon: "✓" });
+          }}
+        >Fertig</button>
+      </div>
+    );
+  }
 
   if (enrolling && enroll) {
     return (
@@ -197,18 +303,52 @@ export default function MfaSettings({ requiresMfa }: { requiresMfa?: boolean }) 
           className="btn btn-primary btn-block"
         >{busy ? <div className="spinner" /> : "🔐 2FA aktivieren"}</button>
       ) : (
-        <button
-          onClick={disableMfa}
-          disabled={busy || requiresMfa}
-          className="btn btn-block"
-          style={{
-            border: "1px solid rgba(255,90,107,0.3)", background: "transparent",
-            color: requiresMfa ? "var(--text-muted)" : "var(--red)",
-            cursor: requiresMfa ? "not-allowed" : "pointer",
-          }}
-        >
-          {requiresMfa ? "🔐 Erforderlich für Admin" : "🔓 2FA deaktivieren"}
-        </button>
+        <>
+          {/* Recovery-Codes Status + Regenerate */}
+          <div style={{
+            padding: 12, background: "var(--bg-elevated)",
+            border: `1px solid ${recoveryRemaining !== null && recoveryRemaining < 3 ? "var(--amber)" : "var(--border)"}`,
+            borderRadius: 10, marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ fontSize: 22 }}>🆘</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, fontWeight: 700 }}>Notfall-Codes</div>
+                <div style={{ fontSize: 11, color: "var(--text-dim)", marginTop: 2 }}>
+                  {recoveryRemaining === null
+                    ? "Keine erstellt — jetzt generieren"
+                    : `${recoveryRemaining} von ursprünglich 8 noch nutzbar`}
+                  {recoveryRemaining !== null && recoveryRemaining < 3 && (
+                    <span style={{ color: "var(--amber)", marginLeft: 6, fontWeight: 800 }}>
+                      ⚠ wenig übrig
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={generateAndShowRecoveryCodes}
+                disabled={busy}
+                className="btn btn-ghost"
+                style={{ fontSize: 11, padding: "6px 10px", whiteSpace: "nowrap" }}
+              >
+                {recoveryRemaining === null ? "Erstellen" : "Neu generieren"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={disableMfa}
+            disabled={busy || requiresMfa}
+            className="btn btn-block"
+            style={{
+              border: "1px solid rgba(255,90,107,0.3)", background: "transparent",
+              color: requiresMfa ? "var(--text-muted)" : "var(--red)",
+              cursor: requiresMfa ? "not-allowed" : "pointer",
+            }}
+          >
+            {requiresMfa ? "🔐 Erforderlich für Admin" : "🔓 2FA deaktivieren"}
+          </button>
+        </>
       )}
     </div>
   );
