@@ -1,15 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
 import MfaSettings from "@/components/MfaSettings";
-import { useSearchParams } from "next/navigation";
 
 export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: "center", padding: 40 }}><div className="spinner" style={{ margin: "0 auto" }} /></div>}>
+      <SettingsInner />
+    </Suspense>
+  );
+}
+
+function SettingsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();

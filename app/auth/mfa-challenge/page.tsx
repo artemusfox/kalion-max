@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
@@ -10,6 +10,14 @@ import { normalizeCode } from "@/lib/recovery-codes";
 import BrandLogo from "@/components/BrandLogo";
 
 export default function MfaChallengePage() {
+  return (
+    <Suspense fallback={<div className="auth-wrap"><div className="auth-card"><div className="spinner" style={{ margin: "0 auto" }} /></div></div>}>
+      <MfaChallengeInner />
+    </Suspense>
+  );
+}
+
+function MfaChallengeInner() {
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/dashboard";
