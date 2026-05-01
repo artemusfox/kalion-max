@@ -1,29 +1,13 @@
-import { ImageResponse } from "next/og";
+import fs from "node:fs";
+import path from "node:path";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = { width: 512, height: 512 };
 export const contentType = "image/png";
 
 export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #0f1218 0%, #1d2230 100%)",
-          color: "#22D3EE",
-          fontSize: 320,
-          fontWeight: 900,
-          letterSpacing: -20,
-        }}
-      >
-        ⚡
-      </div>
-    ),
-    { ...size }
-  );
+  const file = fs.readFileSync(path.join(process.cwd(), "public", "logo.png"));
+  return new Response(new Uint8Array(file), {
+    headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+  });
 }

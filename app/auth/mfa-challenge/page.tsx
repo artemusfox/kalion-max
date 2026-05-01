@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { getFirstVerifiedFactorId, getAalState } from "@/lib/mfa";
 import { normalizeCode } from "@/lib/recovery-codes";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function MfaChallengePage() {
   const router = useRouter();
@@ -86,10 +87,8 @@ export default function MfaChallengePage() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="brand" style={{ fontSize: 28, marginBottom: 8, display: "flex", justifyContent: "center" }}>
-            <span className="brand-kalion">KALION</span>
-            <span className="brand-bolt">⚡</span>
-            <span className="brand-max">MAX</span>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+            <BrandLogo size={56} textSize={26} />
           </div>
           <div className="auth-title">🔐 Zwei-Faktor</div>
           <div className="auth-sub">

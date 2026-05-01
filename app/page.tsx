@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import LegalFooter from "@/components/LegalFooter";
+import BrandLogo from "@/components/BrandLogo";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -13,10 +14,8 @@ export default async function Home() {
     <div className="auth-wrap">
       <div style={{ maxWidth: 720, textAlign: "center" }}>
         <div style={{ marginBottom: 36 }}>
-          <div className="brand" style={{ fontSize: 64, marginBottom: 20, display: "flex", justifyContent: "center" }}>
-            <span className="brand-kalion">KALION</span>
-            <span className="brand-bolt">⚡</span>
-            <span className="brand-max">MAX</span>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
+            <BrandLogo size={120} textSize={56} />
           </div>
           <p style={{ fontSize: 19, color: "var(--text-dim)", maxWidth: 520, margin: "0 auto", lineHeight: 1.5 }}>
             Deine Trainings-App für <strong style={{ color: "var(--text)" }}>alle Sportarten</strong>.  

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function AppNav({ userName, isAdmin }: { userName?: string | null; isAdmin?: boolean | null } = {}) {
   const pathname = usePathname();
@@ -30,12 +31,8 @@ export default function AppNav({ userName, isAdmin }: { userName?: string | null
 
   return (
     <div className="app-nav">
-      <Link href="/dashboard" style={{ textDecoration: "none" }}>
-        <div className="brand" style={{ fontSize: 20 }}>
-          <span className="brand-kalion">KALION</span>
-          <span className="brand-bolt">⚡</span>
-          <span className="brand-max">MAX</span>
-        </div>
+      <Link href="/dashboard" style={{ textDecoration: "none", color: "inherit" }}>
+        <BrandLogo size={30} textSize={18} />
       </Link>
 
       <div className="app-nav-links">

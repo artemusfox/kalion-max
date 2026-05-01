@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { translateAuthError } from "@/lib/auth-errors";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -69,10 +70,8 @@ export default function SignupPage() {
       <div className="auth-card">
         <div className="auth-header">
           <Link href="/" style={{ textDecoration: "none" }}>
-            <div className="brand" style={{ fontSize: 28, marginBottom: 8, display: "flex", justifyContent: "center" }}>
-              <span className="brand-kalion">KALION</span>
-              <span className="brand-bolt">⚡</span>
-              <span className="brand-max">MAX</span>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
+              <BrandLogo size={56} textSize={26} />
             </div>
           </Link>
           <div className="auth-title">Account erstellen</div>

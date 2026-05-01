@@ -1,28 +1,13 @@
-import { ImageResponse } from "next/og";
+import fs from "node:fs";
+import path from "node:path";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 export default function AppleIcon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "linear-gradient(135deg, #0f1218 0%, #1d2230 100%)",
-          color: "#22D3EE",
-          fontSize: 110,
-          fontWeight: 900,
-        }}
-      >
-        ⚡
-      </div>
-    ),
-    { ...size }
-  );
+  const file = fs.readFileSync(path.join(process.cwd(), "public", "logo.png"));
+  return new Response(new Uint8Array(file), {
+    headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400" },
+  });
 }
