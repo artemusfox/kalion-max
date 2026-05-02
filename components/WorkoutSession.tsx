@@ -11,6 +11,7 @@ import { speak, primeVoice } from "@/lib/voice";
 import Confetti from "@/components/Confetti";
 import PlateVisualizer, { PlateBreakdown } from "@/components/PlateVisualizer";
 import { readPrefs, DEFAULT_PREFS, type UserPrefs } from "@/lib/units";
+import RestTimerDonut from "@/components/RestTimerDonut";
 
 type SetData = {
   reps?: number;
@@ -352,7 +353,6 @@ export default function WorkoutSession({
     );
   }
 
-  const restPct = restSeconds !== null && ex.rest ? (restSeconds / ex.rest) * 100 : 0;
 
   return (
     <div style={overlayStyle}>
@@ -463,12 +463,11 @@ export default function WorkoutSession({
       {restSeconds !== null && (
         <div style={restOverlayStyle}>
           <div style={{ textAlign: "center", maxWidth: 400 }}>
-            <div style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 3, textTransform: "uppercase", fontWeight: 800, marginBottom: 20 }}>Pause</div>
-            <div style={{ fontSize: 140, fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--accent)", letterSpacing: -5, lineHeight: 1, marginBottom: 30 }}>
-              {restSeconds}
+            <div style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 3, textTransform: "uppercase", fontWeight: 800, marginBottom: 24 }}>
+              Pause
             </div>
-            <div style={{ height: 4, background: "var(--surface)", borderRadius: 2, overflow: "hidden", marginBottom: 24 }}>
-              <div style={{ height: "100%", background: "var(--accent)", width: `${restPct}%`, transition: "width 1s linear" }} />
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
+              <RestTimerDonut seconds={restSeconds} total={ex.rest || restSeconds} size={260} />
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <button className="btn" onClick={() => adjustRest(-15)}>−15s</button>

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
 import { SPORT_LABELS, SPORT_ICONS, SPORT_COLORS, levelFromXp, type Sport } from "@/lib/types";
+import StreakFlame from "@/components/StreakFlame";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -110,7 +111,7 @@ export default async function DashboardPage() {
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
           <Stat label="Workouts" value={workoutCount || 0} color="var(--coral)" icon="💪" />
-          <Stat label="Streak" value={profile?.current_streak || 0} color="var(--red)" icon="🔥" />
+          <StreakStat streak={profile?.current_streak || 0} />
           <Stat label="Best" value={profile?.best_streak || 0} color="var(--amber)" icon="👑" />
           <Stat label="Records" value={prCount || 0} color="var(--teal)" icon="🏆" />
         </div>
@@ -174,6 +175,27 @@ function Stat({ label, value, color, icon }: any) {
       <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
       <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 800 }}>{label}</div>
       <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1, marginTop: 4 }}>{value}</div>
+    </div>
+  );
+}
+
+function StreakStat({ streak }: { streak: number }) {
+  return (
+    <div style={{
+      padding: 14, background: "var(--bg-elevated)", border: "1px solid var(--border)",
+      borderRadius: 12, display: "flex", alignItems: "center", gap: 12,
+    }}>
+      <StreakFlame streak={streak} size={48} />
+      <div>
+        <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 800 }}>Streak</div>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", fontWeight: 700, marginTop: 2 }}>
+          {streak === 0 ? "Erloschen" :
+           streak < 4 ? "Glut" :
+           streak < 14 ? "Feuer" :
+           streak < 30 ? "Brand" :
+           streak < 100 ? "Inferno" : "Supernova"}
+        </div>
+      </div>
     </div>
   );
 }
