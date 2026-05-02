@@ -198,21 +198,25 @@ function SettingsInner() {
           Stimmung der Flächen — Body und Karten.
         </div>
 
-        {(["Dunkel", "Hell"] as const).map((group) => {
-          const items = SURFACES.filter((s) => group === "Hell" ? s.light : !s.light);
+        {([
+          { tone: "dark"   as const, label: "🌑 Dunkel" },
+          { tone: "medium" as const, label: "🌗 Mittel" },
+          { tone: "light"  as const, label: "☀️ Hell" },
+        ]).map((group, gi, arr) => {
+          const items = SURFACES.filter((s) => s.tone === group.tone);
           return (
-            <div key={group} style={{ marginBottom: group === "Dunkel" ? 18 : 0 }}>
+            <div key={group.tone} style={{ marginBottom: gi < arr.length - 1 ? 18 : 0 }}>
               <div style={{
                 fontSize: 10, color: "var(--text-muted)", fontWeight: 800,
                 letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8,
-              }}>{group === "Dunkel" ? "🌑 Dunkel" : "☀️ Hell"}</div>
+              }}>{group.label}</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
                 {items.map((s) => {
                   const active = surface === s.id;
                   return (
                     <button
                       key={s.id}
-                      onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: s.light ? "☀️" : "🌑" }); }}
+                      onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: s.tone === "light" ? "☀️" : s.tone === "medium" ? "🌗" : "🌑" }); }}
                       style={{
                         padding: 12,
                         borderRadius: 12,

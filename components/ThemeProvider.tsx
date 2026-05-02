@@ -5,7 +5,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 export type Theme = "cyan" | "lime" | "purple" | "orange" | "rose" | "mono";
 export type Surface =
   | "slate" | "black" | "blue" | "warm" | "forest" | "violet"
+  | "stone" | "storm" | "sage" | "dust" | "mauve"
   | "snow" | "cream" | "mint" | "lavender" | "sand";
+
+export type Tone = "dark" | "medium" | "light";
 
 export const THEMES: { id: Theme; label: string; preview: string }[] = [
   { id: "cyan",   label: "Electric Cyan",  preview: "#22D3EE" },
@@ -16,20 +19,26 @@ export const THEMES: { id: Theme; label: string; preview: string }[] = [
   { id: "mono",   label: "Monochrome",     preview: "#E5E7EB" },
 ];
 
-export const SURFACES: { id: Surface; label: string; preview: string; light: boolean }[] = [
+export const SURFACES: { id: Surface; label: string; preview: string; tone: Tone }[] = [
   // Dunkel
-  { id: "slate",    label: "Slate (Default)",    preview: "#0f1218", light: false },
-  { id: "black",    label: "OLED Black",         preview: "#000000", light: false },
-  { id: "blue",     label: "Deep Blue",          preview: "#0a1428", light: false },
-  { id: "warm",     label: "Warm Charcoal",      preview: "#1a1612", light: false },
-  { id: "forest",   label: "Forest Night",       preview: "#0a1812", light: false },
-  { id: "violet",   label: "Midnight Violet",    preview: "#15101e", light: false },
+  { id: "slate",    label: "Slate (Default)",    preview: "#0f1218", tone: "dark" },
+  { id: "black",    label: "OLED Black",         preview: "#000000", tone: "dark" },
+  { id: "blue",     label: "Deep Blue",          preview: "#0a1428", tone: "dark" },
+  { id: "warm",     label: "Warm Charcoal",      preview: "#1a1612", tone: "dark" },
+  { id: "forest",   label: "Forest Night",       preview: "#0a1812", tone: "dark" },
+  { id: "violet",   label: "Midnight Violet",    preview: "#15101e", tone: "dark" },
+  // Mittel
+  { id: "stone",    label: "Stone",              preview: "#525762", tone: "medium" },
+  { id: "storm",    label: "Storm",              preview: "#4a5868", tone: "medium" },
+  { id: "sage",     label: "Sage",               preview: "#4f594a", tone: "medium" },
+  { id: "dust",     label: "Dust",               preview: "#5c5044", tone: "medium" },
+  { id: "mauve",    label: "Mauve",              preview: "#58495a", tone: "medium" },
   // Hell
-  { id: "snow",     label: "Snow",               preview: "#ffffff", light: true },
-  { id: "cream",    label: "Cream",              preview: "#f8f3e9", light: true },
-  { id: "mint",     label: "Mint",               preview: "#eff7f1", light: true },
-  { id: "lavender", label: "Lavender",           preview: "#f3eef9", light: true },
-  { id: "sand",     label: "Sand",               preview: "#f5efe5", light: true },
+  { id: "snow",     label: "Snow",               preview: "#ffffff", tone: "light" },
+  { id: "cream",    label: "Cream",              preview: "#f8f3e9", tone: "light" },
+  { id: "mint",     label: "Mint",               preview: "#eff7f1", tone: "light" },
+  { id: "lavender", label: "Lavender",           preview: "#f3eef9", tone: "light" },
+  { id: "sand",     label: "Sand",               preview: "#f5efe5", tone: "light" },
 ];
 
 type Ctx = {

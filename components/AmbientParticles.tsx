@@ -35,7 +35,16 @@ export default function AmbientParticles() {
         @media (prefers-reduced-motion: reduce) {
           .kalion-particle { animation: none !important; }
         }
-        /* Bei hellen Themes Partikel dimmen */
+        /* Bei mittleren Themes Partikel leicht dimmen */
+        [data-bg="stone"]   .kalion-particle,
+        [data-bg="storm"]   .kalion-particle,
+        [data-bg="sage"]    .kalion-particle,
+        [data-bg="dust"]    .kalion-particle,
+        [data-bg="mauve"]   .kalion-particle {
+          opacity: 0.75 !important;
+          mix-blend-mode: screen;
+        }
+        /* Bei hellen Themes stark dimmen + Multiply */
         [data-bg="snow"]    .kalion-particle,
         [data-bg="cream"]   .kalion-particle,
         [data-bg="mint"]    .kalion-particle,

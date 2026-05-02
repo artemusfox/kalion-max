@@ -138,6 +138,60 @@
   --bg-elevated: #322846;
 }
 
+/* ─── MITTEL-THEMES — gedämpfte Mid-Töne, helle Schrift bleibt ─── */
+
+[data-bg="stone"], [data-bg="storm"], [data-bg="sage"],
+[data-bg="dust"], [data-bg="mauve"] {
+  --text:        #f0f1f5;
+  --text-2:      #d6d8de;
+  --text-dim:    #a8acb6;
+  --text-muted:  #80848f;
+  --surface:        rgba(255,255,255,0.05);
+  --surface-2:      rgba(255,255,255,0.08);
+  --surface-hover:  rgba(255,255,255,0.12);
+  --border:         rgba(255,255,255,0.10);
+  --border-active:  rgba(255,255,255,0.18);
+  --border-strong:  rgba(255,255,255,0.28);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.20);
+  --shadow:    0 4px 16px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.15);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.20);
+}
+
+[data-bg="stone"] {
+  --bg: #525762;
+  --bg-2: #5c616d;
+  --bg-raised: #686d7a;
+  --bg-elevated: #757a87;
+}
+
+[data-bg="storm"] {
+  --bg: #4a5868;
+  --bg-2: #546376;
+  --bg-raised: #5f6f83;
+  --bg-elevated: #6a7d92;
+}
+
+[data-bg="sage"] {
+  --bg: #4f594a;
+  --bg-2: #586352;
+  --bg-raised: #647060;
+  --bg-elevated: #717e6c;
+}
+
+[data-bg="dust"] {
+  --bg: #5c5044;
+  --bg-2: #685a4d;
+  --bg-raised: #756657;
+  --bg-elevated: #847463;
+}
+
+[data-bg="mauve"] {
+  --bg: #58495a;
+  --bg-2: #635366;
+  --bg-raised: #715f74;
+  --bg-elevated: #806c83;
+}
+
 /* ─── HELLE THEMES — invertieren auch Text, Border und Surfaces ─── */
 
 [data-bg="snow"], [data-bg="cream"], [data-bg="mint"],
