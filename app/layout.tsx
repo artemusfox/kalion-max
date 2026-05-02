@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 import ThemeProvider from "@/components/ThemeProvider";
+import LanguageProvider from "@/components/LanguageProvider";
 import AmbientParticles from "@/components/AmbientParticles";
 import CookieConsent from "@/components/CookieConsent";
 import ConditionalAnalytics from "@/components/ConditionalAnalytics";
@@ -34,10 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AmbientParticles />
         <ThemeProvider>
-          <ToastProvider>
-            {children}
-            <CookieConsent />
-          </ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>
+              {children}
+              <CookieConsent />
+            </ToastProvider>
+          </LanguageProvider>
         </ThemeProvider>
         <ConditionalAnalytics />
         <script dangerouslySetInnerHTML={{ __html: `
