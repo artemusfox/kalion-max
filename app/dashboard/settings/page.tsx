@@ -7,6 +7,7 @@ import { useToast } from "@/components/Toast";
 import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
 import MfaSettings from "@/components/MfaSettings";
+import UnitsSettings from "@/components/UnitsSettings";
 
 export default function SettingsPage() {
   return (
@@ -265,6 +266,14 @@ function SettingsInner() {
         >
           {voiceOn ? "🔊 Sprache an — antippen zum Deaktivieren" : "🔇 Sprache aus — antippen zum Aktivieren"}
         </button>
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>📐 Einheiten & Hantelscheiben</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
+          Kg/Lbs, km/Meilen — und welche Hantelscheiben in deinem Studio liegen.
+        </div>
+        <UnitsSettings />
       </div>
 
       <div className="card" style={mfaRequired ? { borderColor: "var(--accent)" } : {}}>

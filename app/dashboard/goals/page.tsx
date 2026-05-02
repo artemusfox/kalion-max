@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { BADGES, levelFromXp, SPORT_LABELS, SPORT_ICONS, type Sport } from "@/lib/types";
+import { EXERCISES, EX_BY_ID } from "@/lib/exercises";
 import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
+import Confetti from "@/components/Confetti";
 
 export default function GoalsPage() {
   const { toast } = useToast();
@@ -14,14 +16,30 @@ export default function GoalsPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showNewGoal, setShowNewGoal] = useState(false);
+  const [confettiKey, setConfettiKey] = useState(0);
 
   useEffect(() => { load(); }, []);
 
   async function load() {
     setLoading(true);
     const supabase = createClient();
+
+    // Vorher: Active-Goals aus PRs aktualisieren
+    const before = await supabase.from("goals").select("id, status").eq("status", "active");
+    await supabase.rpc("refresh_goal_progress");
     const { data: g } = await supabase.from("goals").select("*").order("created_at", { ascending: false });
     setGoals(g || []);
+
+    // Wenn ein Goal NEU completed ist (vorher active, jetzt completed) → Konfetti
+    if (before.data && g) {
+      const wasActive = new Set(before.data.filter((x: any) => x.status === "active").map((x: any) => x.id));
+      const newlyDone = g.filter((x: any) => wasActive.has(x.id) && x.status === "completed");
+      if (newlyDone.length > 0) {
+        setConfettiKey((k) => k + 1);
+        toast(`🎯 Ziel erreicht: ${newlyDone[0].title}!`, { type: "success", icon: "🎯" });
+      }
+    }
+
     const { data: b } = await supabase.from("user_badges").select("badge_key");
     setBadges((b || []).map((x: any) => x.badge_key));
     const { data: p } = await supabase.from("profiles").select("*").single();
@@ -53,6 +71,7 @@ export default function GoalsPage() {
 
   return (
     <div>
+      <Confetti trigger={confettiKey} />
       {profile && (
         <div className="card" style={{
           background: "linear-gradient(135deg, var(--accent-tint), transparent)",
@@ -186,7 +205,14 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
   const [unit, setUnit] = useState("kg");
   const [sport, setSport] = useState<Sport | "">("");
   const [deadline, setDeadline] = useState("");
+  const [linkedExId, setLinkedExId] = useState("");
+  const [exSearch, setExSearch] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const exMatches = exSearch
+    ? EXERCISES.filter((e) => e.name.toLowerCase().includes(exSearch.toLowerCase())).slice(0, 6)
+    : [];
+  const linkedEx = linkedExId ? EX_BY_ID[linkedExId] : null;
 
   async function save() {
     if (!title.trim()) return;
@@ -200,6 +226,7 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
       target_value: target ? parseFloat(target) : null,
       unit, sport: sport || null,
       deadline: deadline || null,
+      linked_exercise_id: linkedExId || null,
     });
     setSaving(false);
     onDone();
@@ -226,6 +253,60 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
             <option key={s} value={s}>{SPORT_LABELS[s]}</option>
           ))}
         </select>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">Mit Übung verknüpfen (optional)</label>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 6, lineHeight: 1.4 }}>
+          Wenn verknüpft, wird der Fortschritt automatisch aus deinen PRs für diese Übung berechnet.
+        </div>
+        {linkedEx ? (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 10, padding: 10,
+            background: "var(--accent-tint)", border: "1px solid var(--accent-border)",
+            borderRadius: 10,
+          }}>
+            <div style={{ flex: 1, fontSize: 13, fontWeight: 700 }}>
+              ⚡ {linkedEx.name}
+            </div>
+            <button
+              type="button"
+              onClick={() => { setLinkedExId(""); setExSearch(""); }}
+              className="btn btn-ghost"
+              style={{ padding: "4px 10px", fontSize: 11 }}
+            >Lösen</button>
+          </div>
+        ) : (
+          <>
+            <input
+              className="form-input"
+              value={exSearch}
+              onChange={(e) => setExSearch(e.target.value)}
+              placeholder="🔍 Übung suchen..."
+              style={{ marginBottom: exMatches.length > 0 ? 6 : 0 }}
+            />
+            {exMatches.length > 0 && (
+              <div style={{
+                background: "var(--bg-elevated)", border: "1px solid var(--border)",
+                borderRadius: 8, maxHeight: 200, overflowY: "auto",
+              }}>
+                {exMatches.map((e) => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => { setLinkedExId(e.id); setExSearch(""); }}
+                    style={{
+                      width: "100%", padding: "8px 10px", textAlign: "left",
+                      background: "transparent", border: "none", color: "var(--text)",
+                      cursor: "pointer", fontFamily: "inherit", fontSize: 12,
+                      borderBottom: "1px solid var(--border)",
+                    }}
+                  >{SPORT_ICONS[e.sport]} {e.name}</button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div className="form-group">

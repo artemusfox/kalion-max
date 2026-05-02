@@ -9,6 +9,8 @@ import { useToast } from "@/components/Toast";
 import { suggestNextTargets, buildHistoryMap, type Suggestion } from "@/lib/auto-progression";
 import { speak, primeVoice } from "@/lib/voice";
 import Confetti from "@/components/Confetti";
+import PlateVisualizer, { PlateBreakdown } from "@/components/PlateVisualizer";
+import { readPrefs, DEFAULT_PREFS, type UserPrefs } from "@/lib/units";
 
 type SetData = {
   reps?: number;
@@ -57,6 +59,7 @@ export default function WorkoutSession({
   const [suggestions, setSuggestions] = useState<Record<string, Suggestion>>({});
   const [prMap, setPrMap] = useState<Record<string, number>>({}); // exerciseId → bisheriger Bestwert
   const [confettiKey, setConfettiKey] = useState(0);
+  const [prefs, setPrefs] = useState<UserPrefs>(DEFAULT_PREFS);
   const restIntervalRef = useRef<any>(null);
 
   // Auto-Progression: Lade letzte Workouts → History-Map → setze Initial-Targets
@@ -102,6 +105,13 @@ export default function WorkoutSession({
         if (v > (map[r.exercise_id] || 0)) map[r.exercise_id] = v;
       }
       setPrMap(map);
+
+      // User-Prefs (Units & Plates)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("units, settings")
+        .single();
+      setPrefs(readPrefs(profile));
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -392,10 +402,38 @@ export default function WorkoutSession({
 
           {suggestions[ex.exercise.id]?.reason && (
             <div style={{
-              fontSize: 12, color: "var(--accent)", lineHeight: 1.4, marginBottom: 20,
+              fontSize: 12, color: "var(--accent)", lineHeight: 1.4, marginBottom: 12,
               padding: "10px 12px", background: "var(--accent-tint)", borderRadius: 10,
               border: "1px solid var(--accent-border)", fontWeight: 700,
             }}>⚡ Auto-Vorschlag: {suggestions[ex.exercise.id].reason}</div>
+          )}
+
+          {/* Plate-Visualizer für Barbell-Übungen */}
+          {ex.exercise.tracking === "reps_weight"
+            && ex.exercise.equipment === "barbell"
+            && ex.sets[0]?.weight
+            && ex.sets[0].weight >= prefs.plates.bar && (
+            <div style={{
+              padding: "10px 12px", background: "var(--bg-elevated)",
+              border: "1px solid var(--border)", borderRadius: 10, marginBottom: 20,
+            }}>
+              <div style={{
+                fontSize: 9, color: "var(--text-muted)", letterSpacing: 1.5,
+                fontWeight: 800, textTransform: "uppercase", marginBottom: 6, textAlign: "center",
+              }}>🥩 Plates für {ex.sets[0].weight} {prefs.units === "imperial" ? "lb" : "kg"}</div>
+              <PlateVisualizer
+                totalWeight={ex.sets[0].weight}
+                prefs={prefs.plates}
+                unit={prefs.units === "imperial" ? "lb" : "kg"}
+              />
+              <div style={{ textAlign: "center", marginTop: 4 }}>
+                <PlateBreakdown
+                  totalWeight={ex.sets[0].weight}
+                  prefs={prefs.plates}
+                  unit={prefs.units === "imperial" ? "lb" : "kg"}
+                />
+              </div>
+            </div>
           )}
 
           {/* Sets */}
