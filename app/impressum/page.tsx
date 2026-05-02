@@ -12,7 +12,7 @@ export default function ImpressumPage() {
         ← Zurück
       </Link>
 
-      <h1 style={{ fontSize: 36, fontStyle: "italic", marginTop: 24, marginBottom: 8, letterSpacing: -1 }}>
+      <h1 style={{ fontSize: 36, marginTop: 24, marginBottom: 8, letterSpacing: -1 }}>
         Impressum
       </h1>
       <p style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 32 }}>

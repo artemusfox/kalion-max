@@ -3,7 +3,8 @@ import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
 import ThemeProvider from "@/components/ThemeProvider";
 import AmbientParticles from "@/components/AmbientParticles";
-import { Analytics } from "@vercel/analytics/next";
+import CookieConsent from "@/components/CookieConsent";
+import ConditionalAnalytics from "@/components/ConditionalAnalytics";
 
 export const metadata: Metadata = {
   title: "KALION MAX",
@@ -33,9 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AmbientParticles />
         <ThemeProvider>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            {children}
+            <CookieConsent />
+          </ToastProvider>
         </ThemeProvider>
-        <Analytics />
+        <ConditionalAnalytics />
         <script dangerouslySetInnerHTML={{ __html: `
           document.addEventListener('click', function(e) {
             const btn = e.target.closest('.btn');

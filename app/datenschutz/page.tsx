@@ -12,7 +12,7 @@ export default function DatenschutzPage() {
         ← Zurück
       </Link>
 
-      <h1 style={{ fontSize: 36, fontStyle: "italic", marginTop: 24, marginBottom: 8, letterSpacing: -1 }}>
+      <h1 style={{ fontSize: 36, marginTop: 24, marginBottom: 8, letterSpacing: -1 }}>
         Datenschutz
       </h1>
       <p style={{ color: "var(--text-muted)", fontSize: 13, marginBottom: 32 }}>
@@ -86,12 +86,30 @@ export default function DatenschutzPage() {
       </div>
 
       <div className="card" style={{ marginBottom: 20 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14 }}>5. Cookies</h2>
-        <p style={{ fontSize: 14, color: "var(--text-dim)", lineHeight: 1.6 }}>
-          Wir verwenden ausschließlich technisch notwendige Cookies (z.B. zur Aufrechterhaltung deiner Session).
-          Diese Cookies sind nach <strong>§ 25 Abs. 2 Nr. 2 TDDDG</strong> einwilligungsfrei.
-          Wir setzen kein Tracking, keine Werbe-Cookies und keine Analytics ein.
+        <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 14 }}>5. Cookies & lokaler Speicher</h2>
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginTop: 8, marginBottom: 6 }}>Notwendig (einwilligungsfrei)</h3>
+        <p style={{ fontSize: 14, color: "var(--text-dim)", lineHeight: 1.6, marginBottom: 8 }}>
+          Diese Cookies und Speichereinträge sind technisch zwingend nötig, damit du die App nutzen kannst.
+          Sie sind nach <strong>§ 25 Abs. 2 Nr. 2 TDDDG</strong> einwilligungsfrei.
         </p>
+        <ul style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.7, paddingLeft: 24, marginBottom: 14 }}>
+          <li>Supabase Auth-Session-Cookie (HTTP-only) — hält dich eingeloggt</li>
+          <li>Theme-/Sprach-/Hintergrund-Auswahl im localStorage — UX-Präferenzen</li>
+          <li>2FA-Faktor-IDs falls aktiviert — Login mit zweitem Faktor</li>
+        </ul>
+
+        <h3 style={{ fontSize: 14, fontWeight: 700, marginTop: 16, marginBottom: 6 }}>Optional (mit Einwilligung)</h3>
+        <p style={{ fontSize: 14, color: "var(--text-dim)", lineHeight: 1.6, marginBottom: 8 }}>
+          Diese Datenverarbeitung erfolgt nur, wenn du beim Cookie-Banner aktiv eingewilligt hast.
+          Deine Einwilligung kannst du jederzeit über den Footer-Link <em>"Cookie-Einstellungen"</em> widerrufen.
+        </p>
+        <ul style={{ fontSize: 13, color: "var(--text-dim)", lineHeight: 1.7, paddingLeft: 24 }}>
+          <li>
+            <strong>Vercel Web Analytics</strong> — anonymisierte Reichweitenmessung (Seitenaufrufe, Web Vitals).
+            Nutzt keine Cookies. IP-Adressen werden zur Geolokalisation kurzzeitig verarbeitet und sofort verworfen.
+            Keine personenbezogene Profilbildung. Anbieter: Vercel Inc. (USA, EU-US Data Privacy Framework).
+          </li>
+        </ul>
       </div>
 
       <div className="card" style={{ marginBottom: 20 }}>
