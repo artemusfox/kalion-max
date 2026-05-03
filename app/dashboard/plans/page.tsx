@@ -8,10 +8,13 @@ import { TEMPLATES } from "@/lib/templates";
 import { SPORT_LABELS, SPORT_ICONS, SPORT_COLORS, type Sport, type Plan } from "@/lib/types";
 import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
+import { useLanguage } from "@/components/LanguageProvider";
+import { sportLabel } from "@/lib/labels";
 
 export default function PlansPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { t: tr, lang } = useLanguage();
   const [tab, setTab] = useState<"mine" | "templates">("mine");
   const [sportFilter, setSportFilter] = useState<Sport | "all">("all");
   const [userPlans, setUserPlans] = useState<any[]>([]);
@@ -52,7 +55,7 @@ export default function PlansPage() {
     await supabase.from("profiles").update({
       active_plan_id: data.id, active_sport: template.sport,
     }).eq("id", user.id);
-    toast(`"${template.name}" übernommen & als aktiv gesetzt`, { type: "success", icon: "⚡" });
+    toast(lang === "en" ? `"${template.name}" cloned & set active` : `"${template.name}" übernommen & als aktiv gesetzt`, { type: "success", icon: "⚡" });
     router.push(`/dashboard/plans/${data.id}`);
   }
 
@@ -64,14 +67,14 @@ export default function PlansPage() {
       active_plan_id: planId, active_sport: sport,
     }).eq("id", user.id);
     setActivePlanId(planId);
-    toast(`"${name}" ist dein aktiver Plan`, { type: "success", icon: "✓" });
+    toast(lang === "en" ? `"${name}" is your active plan` : `"${name}" ist dein aktiver Plan`, { type: "success", icon: "✓" });
   }
 
   async function deletePlan(id: string, name: string) {
-    if (!confirm(`"${name}" wirklich löschen?`)) return;
+    if (!confirm(lang === "en" ? `Really delete "${name}"?` : `"${name}" wirklich löschen?`)) return;
     const supabase = createClient();
     await supabase.from("user_plans").delete().eq("id", id);
-    toast("Plan gelöscht", { type: "info", icon: "🗑" });
+    toast(lang === "en" ? "Plan deleted" : "Plan gelöscht", { type: "info", icon: "🗑" });
     load();
   }
 
@@ -91,16 +94,16 @@ export default function PlansPage() {
             background: tab === t ? "var(--bg-elevated)" : "transparent",
             color: tab === t ? "var(--text)" : "var(--text-muted)",
             cursor: "pointer", fontFamily: "inherit", fontSize: 12, fontWeight: 700,
-          }}>{t === "mine" ? "📋 Meine Pläne" : "✨ Vorlagen"}</button>
+          }}>{t === "mine" ? `📋 ${tr("plans.tab.mine")}` : `✨ ${tr("plans.tab.templates")}`}</button>
         ))}
       </div>
 
       {/* Sport filter */}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
-        <FilterChip active={sportFilter === "all"} onClick={() => setSportFilter("all")} label="Alle Sportarten" />
+        <FilterChip active={sportFilter === "all"} onClick={() => setSportFilter("all")} label={lang === "en" ? "All sports" : "Alle Sportarten"} />
         {(Object.keys(SPORT_LABELS) as Sport[]).map((s) => (
           <FilterChip key={s} active={sportFilter === s} onClick={() => setSportFilter(s)}
-            label={`${SPORT_ICONS[s]} ${SPORT_LABELS[s]}`} color={SPORT_COLORS[s]} />
+            label={`${SPORT_ICONS[s]} ${sportLabel(s, lang)}`} color={SPORT_COLORS[s]} />
         ))}
       </div>
 
@@ -109,16 +112,16 @@ export default function PlansPage() {
         : userPlans.filter((p) => sportFilter === "all" || p.sport === sportFilter).length === 0 ? (
           <EmptyState
             icon="📋"
-            title="Noch keine eigenen Pläne"
-            description="Klone eine Vorlage oder erstelle deinen eigenen Plan von Grund auf."
-            action={{ label: "✨ Vorlagen ansehen", onClick: () => setTab("templates") }}
-            secondaryAction={{ label: "+ Eigenen Plan erstellen", onClick: () => router.push("/dashboard/plans/new") }}
+            title={tr("plans.empty.mine")}
+            description={tr("plans.empty.mine.desc")}
+            action={{ label: lang === "en" ? "✨ Browse templates" : "✨ Vorlagen ansehen", onClick: () => setTab("templates") }}
+            secondaryAction={{ label: lang === "en" ? "+ Create custom plan" : "+ Eigenen Plan erstellen", onClick: () => router.push("/dashboard/plans/new") }}
           />
         ) : (
           <>
             <div style={{ marginBottom: 16 }}>
               <Link href="/dashboard/plans/new" className="btn btn-primary btn-block">
-                + Neuen Plan erstellen
+                {tr("plans.new")}
               </Link>
             </div>
             <div className="stagger">
@@ -137,7 +140,7 @@ export default function PlansPage() {
                         <h3 style={{ fontSize: 18 }}>{p.name}</h3>
                         {isActive && (
                           <span className="sport-pill animate-pop" style={{ background: "var(--accent-tint)", color: "var(--accent)", border: "1px solid var(--accent)" }}>
-                            AKTIV
+                            {lang === "en" ? "ACTIVE" : "AKTIV"}
                           </span>
                         )}
                       </div>
@@ -145,15 +148,15 @@ export default function PlansPage() {
                         {p.description}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
-                        {SPORT_LABELS[sport]} · {p.level} · {p.duration_weeks} Wochen
+                        {sportLabel(sport, lang)} · {p.level} · {p.duration_weeks} {tr("plans.weeks.suffix")}
                       </div>
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
-                    <Link href={`/dashboard/plans/${p.id}`} className="btn">📝 Bearbeiten</Link>
+                    <Link href={`/dashboard/plans/${p.id}`} className="btn">📝 {tr("plans.edit")}</Link>
                     {!isActive && (
                       <button className="btn btn-primary" onClick={() => setActive(p.id, p.sport, p.name)}>
-                        ✓ Als aktiv setzen
+                        ✓ {tr("plans.activate")}
                       </button>
                     )}
                     <button onClick={() => deletePlan(p.id, p.name)} className="btn"
@@ -185,7 +188,7 @@ export default function PlansPage() {
                       background: `${SPORT_COLORS[sport]}20`,
                       color: SPORT_COLORS[sport],
                       border: `1px solid ${SPORT_COLORS[sport]}40`,
-                    }}>{SPORT_LABELS[sport]}</span>
+                    }}>{sportLabel(sport, lang)}</span>
                     <span className="sport-pill" style={{
                       background: "var(--surface)", color: "var(--text-dim)",
                       border: "1px solid var(--border)",
@@ -193,12 +196,12 @@ export default function PlansPage() {
                     <span className="sport-pill" style={{
                       background: "var(--surface)", color: "var(--text-dim)",
                       border: "1px solid var(--border)",
-                    }}>{t.durationWeeks} Wochen</span>
+                    }}>{t.durationWeeks} {tr("plans.weeks.suffix")}</span>
                   </div>
                 </div>
               </div>
               <button onClick={() => cloneTemplate(t)} className="btn btn-primary btn-block" style={{ marginTop: 8 }}>
-                + Als meinen Plan übernehmen
+                + {tr("plans.use.template")}
               </button>
             </div>
           );

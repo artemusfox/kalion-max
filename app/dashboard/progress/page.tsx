@@ -9,6 +9,7 @@ import { EmptyState, SkeletonList } from "@/components/UI";
 import VolumeHeatmap from "@/components/VolumeHeatmap";
 import ExerciseChart from "@/components/ExerciseChart";
 import YearHeatmap from "@/components/YearHeatmap";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function ProgressPage() {
   const { toast } = useToast();

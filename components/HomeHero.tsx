@@ -4,6 +4,7 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import LegalFooter from "@/components/LegalFooter";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import UserStats from "@/components/UserStats";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function HomeHero() {
@@ -31,8 +32,9 @@ export default function HomeHero() {
   return (
     <div className="auth-wrap">
       <div style={{ maxWidth: 720, textAlign: "center", width: "100%" }}>
-        {/* Sprach-Umschalter oben */}
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
+        {/* Sprach-Umschalter + Live-Counter oben */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 8 }}>
+          <UserStats />
           <LanguageSwitch />
         </div>
 

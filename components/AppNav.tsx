@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import BrandLogo from "@/components/BrandLogo";
 import { useLanguage } from "@/components/LanguageProvider";
+import UserStats from "@/components/UserStats";
 
 export default function AppNav({ userName, isAdmin }: { userName?: string | null; isAdmin?: boolean | null } = {}) {
   const pathname = usePathname();
@@ -47,6 +48,7 @@ export default function AppNav({ userName, isAdmin }: { userName?: string | null
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+        <UserStats compact />
         {isAdmin && (
           <Link href="/dashboard/admin" className="btn btn-ghost" style={{
             padding: "6px 10px", fontSize: 11, fontWeight: 800,

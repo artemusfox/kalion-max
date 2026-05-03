@@ -7,9 +7,11 @@ import { EXERCISES, EX_BY_ID } from "@/lib/exercises";
 import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
 import Confetti from "@/components/Confetti";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function GoalsPage() {
   const { toast } = useToast();
+  const { t: tr, lang } = useLanguage();
   const [tab, setTab] = useState<"goals" | "badges">("goals");
   const [goals, setGoals] = useState<any[]>([]);
   const [badges, setBadges] = useState<string[]>([]);
@@ -36,7 +38,7 @@ export default function GoalsPage() {
       const newlyDone = g.filter((x: any) => wasActive.has(x.id) && x.status === "completed");
       if (newlyDone.length > 0) {
         setConfettiKey((k) => k + 1);
-        toast(`🎯 Ziel erreicht: ${newlyDone[0].title}!`, { type: "success", icon: "🎯" });
+        toast(lang === "en" ? `🎯 Goal achieved: ${newlyDone[0].title}!` : `🎯 Ziel erreicht: ${newlyDone[0].title}!`, { type: "success", icon: "🎯" });
       }
     }
 
@@ -54,15 +56,15 @@ export default function GoalsPage() {
       status: newStatus,
       completed_at: newStatus === "completed" ? new Date().toISOString() : null,
     }).eq("id", id);
-    toast(newStatus === "completed" ? "Ziel erreicht! 🎯" : "Ziel wieder aktiv", { type: "success" });
+    toast(newStatus === "completed" ? tr("goals.completed.toast") : tr("goals.reactivated"), { type: "success" });
     load();
   }
 
   async function deleteGoal(id: string) {
-    if (!confirm("Ziel wirklich löschen?")) return;
+    if (!confirm(tr("goals.delete.confirm"))) return;
     const supabase = createClient();
     await supabase.from("goals").delete().eq("id", id);
-    toast("Ziel gelöscht", { type: "info", icon: "🗑" });
+    toast(tr("goals.deleted.toast"), { type: "info", icon: "🗑" });
     load();
   }
 
@@ -103,7 +105,7 @@ export default function GoalsPage() {
       <div style={tabsStyle}>
         {(["goals", "badges"] as const).map((t) => (
           <button key={t} onClick={() => setTab(t)} style={tabBtn(tab === t)}>
-            {t === "goals" ? "🎯 Ziele" : "🏅 Badges"}
+            {t === "goals" ? tr("goals.tab.goals") : tr("goals.tab.badges")}
           </button>
         ))}
       </div>
@@ -112,15 +114,15 @@ export default function GoalsPage() {
        : tab === "goals" ? (
         <>
           <button className="btn btn-primary btn-block" onClick={() => setShowNewGoal(true)} style={{ marginBottom: 16 }}>
-            + Neues Ziel
+            {tr("goals.new")}
           </button>
-          {showNewGoal && <NewGoalForm onDone={() => { setShowNewGoal(false); toast("Ziel erstellt", { type: "success", icon: "🎯" }); load(); }} onCancel={() => setShowNewGoal(false)} />}
+          {showNewGoal && <NewGoalForm onDone={() => { setShowNewGoal(false); toast(tr("goals.created.toast"), { type: "success", icon: "🎯" }); load(); }} onCancel={() => setShowNewGoal(false)} />}
           {goals.length === 0 && !showNewGoal ? (
             <EmptyState
               icon="🎯"
-              title="Noch keine Ziele"
-              description="Setze dir ein konkretes Ziel und tracke deinen Fortschritt dorthin."
-              action={{ label: "+ Erstes Ziel setzen", onClick: () => setShowNewGoal(true) }}
+              title={tr("goals.empty.title")}
+              description={tr("goals.empty.desc")}
+              action={{ label: tr("goals.empty.cta"), onClick: () => setShowNewGoal(true) }}
             />
           ) : (
             <div className="stagger">

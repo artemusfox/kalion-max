@@ -12,6 +12,7 @@ import Confetti from "@/components/Confetti";
 import PlateVisualizer, { PlateBreakdown } from "@/components/PlateVisualizer";
 import { readPrefs, DEFAULT_PREFS, type UserPrefs } from "@/lib/units";
 import RestTimerDonut from "@/components/RestTimerDonut";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type SetData = {
   reps?: number;
@@ -34,6 +35,7 @@ export default function WorkoutSession({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const { t, lang } = useLanguage();
   const [session, setSession] = useState<ExState[]>(() =>
     exercises.map((pe) => {
       const ex = EX_BY_ID[pe.exerciseId];
@@ -170,8 +172,11 @@ export default function WorkoutSession({
     setPrMap((m) => ({ ...m, [ex.exercise.id]: value! }));
     setConfettiKey((k) => k + 1);
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([60, 30, 60, 30, 100]);
-    speak("Neuer Rekord!");
-    toast(`Neuer Rekord: ${value} ${unit} bei ${ex.exercise.name}!`, { type: "success", icon: "🏆" });
+    speak(t("ws.pr.spoken"), lang === "en" ? "en-US" : "de-DE");
+    toast(lang === "en"
+      ? `New PR: ${value} ${unit} on ${ex.exercise.name}!`
+      : `Neuer Rekord: ${value} ${unit} bei ${ex.exercise.name}!`,
+      { type: "success", icon: "🏆" });
 
     // In DB speichern
     const supabase = createClient();
@@ -193,22 +198,23 @@ export default function WorkoutSession({
     clearInterval(restIntervalRef.current);
     setRestSeconds(sec);
     primeVoice();
-    speak(`Pause ${sec} Sekunden`);
+    speak(lang === "en" ? `Rest ${sec} seconds` : `Pause ${sec} Sekunden`, lang === "en" ? "en-US" : "de-DE");
     restIntervalRef.current = setInterval(() => {
       setRestSeconds((r) => {
         if (r === null || r <= 1) {
           clearInterval(restIntervalRef.current);
           if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([100, 50, 100]);
-          speak("Los!");
+          speak(lang === "en" ? "Go!" : "Los!", lang === "en" ? "en-US" : "de-DE");
           return null;
         }
         const next = r - 1;
-        // Sprach-Cues bei sinnvollen Marken
-        if (next === 10) speak("Zehn Sekunden");
-        else if (next === 5) speak("Fünf");
-        else if (next === 3) speak("Drei");
-        else if (next === 2) speak("Zwei");
-        else if (next === 1) speak("Eins");
+        const isEn = lang === "en";
+        const loc = isEn ? "en-US" : "de-DE";
+        if (next === 10)      speak(isEn ? "Ten seconds" : "Zehn Sekunden", loc);
+        else if (next === 5)  speak(isEn ? "Five" : "Fünf", loc);
+        else if (next === 3)  speak(isEn ? "Three" : "Drei", loc);
+        else if (next === 2)  speak(isEn ? "Two" : "Zwei", loc);
+        else if (next === 1)  speak(isEn ? "One" : "Eins", loc);
         return next;
       });
     }, 1000);
@@ -227,7 +233,7 @@ export default function WorkoutSession({
     setSaving(true);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { toast("Nicht eingeloggt", { type: "error" }); setSaving(false); return; }
+    if (!user) { toast(lang === "en" ? "Not logged in" : "Nicht eingeloggt", { type: "error" }); setSaving(false); return; }
 
     const duration = Math.floor((Date.now() - startTime) / 1000);
     const totalReps = session.reduce((sum, e) =>
@@ -258,7 +264,7 @@ export default function WorkoutSession({
       })),
     });
 
-    if (error) { toast("Fehler beim Speichern: " + error.message, { type: "error" }); setSaving(false); return; }
+    if (error) { toast(t("ws.save.error") + ": " + error.message, { type: "error" }); setSaving(false); return; }
 
     // XP & Streak
     const xpGained = doneSets * 10 + (doneSets === totalSets ? 50 : 0);
@@ -360,11 +366,11 @@ export default function WorkoutSession({
       {/* Header */}
       <div style={headerStyle}>
         <button onClick={() => {
-          if (doneSets > 0 && !confirm("Workout beenden?")) return;
+          if (doneSets > 0 && !confirm(t("ws.confirm.exit"))) return;
           router.back();
         }} className="btn btn-ghost">✕</button>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800 }}>SESSION</div>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800 }}>{t("ws.session")}</div>
           <div style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800 }}>
             {String(Math.floor(elapsed/60)).padStart(2,"0")}:{String(elapsed%60).padStart(2,"0")}
           </div>
@@ -387,7 +393,7 @@ export default function WorkoutSession({
         <div className="card" style={{ position: "relative", overflow: "hidden", padding: 28 }}>
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: SPORT_COLORS[ex.exercise.sport] }} />
           <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, marginBottom: 6, textTransform: "uppercase" }}>
-            Übung {currentIdx + 1} von {session.length}
+            {lang === "en" ? `Exercise ${currentIdx + 1} of ${session.length}` : `Übung ${currentIdx + 1} von ${session.length}`}
           </div>
           <h2 style={{ fontSize: 30, letterSpacing: -1, marginBottom: 12, lineHeight: 1.1 }}>
             {ex.exercise.name}
@@ -405,7 +411,7 @@ export default function WorkoutSession({
               fontSize: 12, color: "var(--accent)", lineHeight: 1.4, marginBottom: 12,
               padding: "10px 12px", background: "var(--accent-tint)", borderRadius: 10,
               border: "1px solid var(--accent-border)", fontWeight: 700,
-            }}>⚡ Auto-Vorschlag: {suggestions[ex.exercise.id].reason}</div>
+            }}>⚡ {t("ws.auto.suggest")} {suggestions[ex.exercise.id].reason}</div>
           )}
 
           {/* Plate-Visualizer für Barbell-Übungen */}
@@ -420,7 +426,7 @@ export default function WorkoutSession({
               <div style={{
                 fontSize: 9, color: "var(--text-muted)", letterSpacing: 1.5,
                 fontWeight: 800, textTransform: "uppercase", marginBottom: 6, textAlign: "center",
-              }}>🥩 Plates für {ex.sets[0].weight} {prefs.units === "imperial" ? "lb" : "kg"}</div>
+              }}>🥩 {t("ws.plates.for")} {ex.sets[0].weight} {prefs.units === "imperial" ? "lb" : "kg"}</div>
               <PlateVisualizer
                 totalWeight={ex.sets[0].weight}
                 prefs={prefs.plates}
@@ -450,12 +456,12 @@ export default function WorkoutSession({
       {/* Bottom nav */}
       <div style={bottomNavStyle}>
         <div style={{ maxWidth: 560, width: "100%", display: "flex", gap: 10 }}>
-          <button className="btn" onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))} disabled={currentIdx === 0}>← Zurück</button>
+          <button className="btn" onClick={() => setCurrentIdx((i) => Math.max(0, i - 1))} disabled={currentIdx === 0}>{t("ws.previous")}</button>
           <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => {
             if (currentIdx === session.length - 1) setShowSummary(true);
             else { setCurrentIdx((i) => i + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }
           }}>
-            {currentIdx === session.length - 1 ? "✓ Workout beenden" : "Nächste →"}
+            {currentIdx === session.length - 1 ? t("ws.finish") : t("ws.next")}
           </button>
         </div>
       </div>
@@ -464,15 +470,15 @@ export default function WorkoutSession({
         <div style={restOverlayStyle}>
           <div style={{ textAlign: "center", maxWidth: 400 }}>
             <div style={{ fontSize: 12, color: "var(--text-muted)", letterSpacing: 3, textTransform: "uppercase", fontWeight: 800, marginBottom: 24 }}>
-              Pause
+              {t("ws.pause")}
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
               <RestTimerDonut seconds={restSeconds} total={ex.rest || restSeconds} size={260} />
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-              <button className="btn" onClick={() => adjustRest(-15)}>−15s</button>
-              <button className="btn" onClick={() => adjustRest(15)}>+15s</button>
-              <button className="btn btn-primary" onClick={skipRest}>Überspringen</button>
+              <button className="btn" onClick={() => adjustRest(-15)}>{t("ws.sub.15")}</button>
+              <button className="btn" onClick={() => adjustRest(15)}>{t("ws.add.15")}</button>
+              <button className="btn btn-primary" onClick={skipRest}>{t("ws.skip")}</button>
             </div>
           </div>
         </div>
