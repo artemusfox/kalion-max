@@ -8,6 +8,8 @@ import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
 import MfaSettings from "@/components/MfaSettings";
 import UnitsSettings from "@/components/UnitsSettings";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SettingsPage() {
   return (
@@ -22,6 +24,7 @@ function SettingsInner() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const { theme, setTheme, surface, setSurface } = useTheme();
+  const { t: tr, lang } = useLanguage();
   const mfaRequired = searchParams.get("mfa-required") === "1";
   const [voiceOn, setVoiceOn] = useState(false);
   const [voiceSupported, setVoiceSupported] = useState(false);
@@ -65,7 +68,7 @@ function SettingsInner() {
       .update({ display_name: displayName })
       .eq("id", profile.id);
     if (error) toast("Fehler: " + error.message, { type: "error" });
-    else toast("Profil gespeichert", { type: "success", icon: "✓" });
+    else toast(tr("settings.saved"), { type: "success", icon: "✓" });
     setSaving(false);
   }
 
@@ -128,7 +131,7 @@ function SettingsInner() {
     a.download = `kalion-max-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    toast("Backup heruntergeladen", { type: "success", icon: "💾" });
+    toast(lang === "en" ? "Backup downloaded" : "Backup heruntergeladen", { type: "success", icon: "💾" });
   }
 
   if (loading) return <div style={{ textAlign: "center", padding: 40 }}><div className="spinner" style={{ margin: "0 auto" }} /></div>;
@@ -136,24 +139,27 @@ function SettingsInner() {
   return (
     <div>
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>👤 Profil</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 800 }}>{tr("settings.profile")}</div>
+          <LanguageSwitch compact />
+        </div>
         <div className="form-group">
-          <label className="form-label">E-Mail</label>
+          <label className="form-label">{tr("common.email")}</label>
           <input className="form-input" value={email} disabled />
         </div>
         <div className="form-group">
-          <label className="form-label">Anzeigename</label>
+          <label className="form-label">{tr("settings.displayname")}</label>
           <input className="form-input" value={displayName} onChange={(e) => setDisplayName(e.target.value)} maxLength={30} />
         </div>
         <button className="btn btn-primary" onClick={saveProfile} disabled={saving}>
-          {saving ? <div className="spinner" /> : "Speichern"}
+          {saving ? <div className="spinner" /> : tr("common.save")}
         </button>
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Akzent-Farbe</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{tr("settings.theme")}</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
-          Wirkt sofort und gilt nur für dich auf diesem Gerät.
+          {tr("settings.theme.desc")}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 }}>
           {THEMES.map((t) => {
@@ -193,15 +199,15 @@ function SettingsInner() {
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🎨 Hintergrund</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{tr("settings.surface")}</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
-          Stimmung der Flächen — Body und Karten.
+          {tr("settings.surface.desc")}
         </div>
 
         {([
-          { tone: "dark"   as const, label: "🌑 Dunkel" },
-          { tone: "medium" as const, label: "🌗 Mittel" },
-          { tone: "light"  as const, label: "☀️ Hell" },
+          { tone: "dark"   as const, label: tr("settings.surface.dark") },
+          { tone: "medium" as const, label: tr("settings.surface.medium") },
+          { tone: "light"  as const, label: tr("settings.surface.light") },
         ]).map((group, gi, arr) => {
           const items = SURFACES.filter((s) => s.tone === group.tone);
           return (
@@ -273,41 +279,41 @@ function SettingsInner() {
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>📐 Einheiten & Hantelscheiben</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{tr("settings.units")}</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
-          Kg/Lbs, km/Meilen — und welche Hantelscheiben in deinem Studio liegen.
+          {tr("settings.units.desc")}
         </div>
         <UnitsSettings />
       </div>
 
       <div className="card" style={mfaRequired ? { borderColor: "var(--accent)" } : {}}>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🔐 Zwei-Faktor-Authentifizierung</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{tr("settings.mfa")}</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
-          Zusätzlicher Schutz beim Login: 6-stelliger Code aus deiner Authenticator-App.
+          {tr("settings.mfa.desc")}
         </div>
         <MfaSettings requiresMfa={!!profile?.is_admin} />
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>🔒 Sicherheit</div>
-        <button className="btn btn-block" onClick={changePassword}>Passwort ändern</button>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>{tr("settings.security")}</div>
+        <button className="btn btn-block" onClick={changePassword}>{tr("settings.security.pw")}</button>
       </div>
 
       <div className="card">
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>💾 Daten</div>
-        <button className="btn btn-block" onClick={exportData}>⬇️ Alle Daten exportieren (JSON)</button>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>{tr("settings.data")}</div>
+        <button className="btn btn-block" onClick={exportData}>{tr("settings.data.export")}</button>
       </div>
 
       <div className="card" style={{ borderColor: "rgba(255,90,107,0.3)" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16, color: "var(--red)" }}>⚠️ Gefahrenzone</div>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16, color: "var(--red)" }}>{tr("settings.danger")}</div>
         <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 16, lineHeight: 1.5 }}>
-          Löschen deines Accounts entfernt ALLE deine Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.
+          {tr("settings.danger.desc")}
         </div>
         <button onClick={deleteAccount} style={{
           padding: "12px 20px", borderRadius: 12, border: "1px solid rgba(255,90,107,0.3)",
           background: "transparent", color: "var(--red)", cursor: "pointer",
           fontFamily: "inherit", fontSize: 13, fontWeight: 800, width: "100%",
-        }}>Account löschen</button>
+        }}>{tr("settings.delete")}</button>
       </div>
     </div>
   );

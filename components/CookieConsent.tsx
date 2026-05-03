@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { readConsent, writeConsent, type ConsentValue } from "@/lib/consent";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function CookieConsent() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
@@ -56,34 +58,34 @@ export default function CookieConsent() {
       `}</style>
 
       <div id="cookie-title" style={{ fontSize: 15, fontWeight: 800, marginBottom: 6 }}>
-        🍪 Cookies & Datenschutz
+        {t("consent.title")}
       </div>
       <div id="cookie-desc" style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5, marginBottom: 14 }}>
-        KALION MAX nutzt technisch notwendige Cookies (Login-Session, Theme-Auswahl) und —
-        nur mit deiner Einwilligung — anonyme Reichweitenanalyse via Vercel Web Analytics.
-        Du kannst deine Wahl jederzeit über den Footer-Link ändern.
-        {" "}<Link href="/datenschutz" style={{ color: "var(--accent)" }}>Mehr erfahren</Link>.
+        {t("consent.desc")}
+        {" "}<Link href="/datenschutz" style={{ color: "var(--accent)" }}>{t("consent.more")}</Link>.
       </div>
 
       {showDetail && (
         <div style={{ marginBottom: 14 }}>
           <Section
-            title="Notwendig"
-            subtitle="Immer aktiv — für Login und App-Funktion erforderlich"
+            title={t("consent.cat.necessary")}
+            subtitle={t("consent.cat.necessary.sub")}
             color="var(--text-dim)"
             forced
+            forcedLabel={t("common.required")}
           >
             <li>Supabase Auth-Session-Cookie</li>
-            <li>Theme- &amp; Spracheinstellungen (localStorage)</li>
-            <li>2FA-Faktor- &amp; Recovery-Cookies</li>
+            <li>Theme &amp; language (localStorage)</li>
+            <li>2FA factor &amp; recovery cookies</li>
           </Section>
           <Section
-            title="Reichweitenmessung"
-            subtitle="Anonym, ohne IP-Speicherung — opt-in"
+            title={t("consent.cat.analytics")}
+            subtitle={t("consent.cat.analytics.sub")}
             color="var(--accent)"
+            forcedLabel=""
           >
-            <li>Vercel Web Analytics — Seitenaufrufe und Web-Vitals</li>
-            <li>Keine Cookies, keine personenbezogenen Daten</li>
+            <li>Vercel Web Analytics</li>
+            <li>No cookies, no personal data</li>
           </Section>
         </div>
       )}
@@ -93,12 +95,12 @@ export default function CookieConsent() {
           onClick={() => decide("necessary")}
           className="btn"
           style={{ fontSize: 12, padding: "10px 14px" }}
-        >Nur notwendige</button>
+        >{t("consent.necessary")}</button>
         <button
           onClick={() => decide("all")}
           className="btn btn-primary"
           style={{ fontSize: 12, padding: "10px 14px" }}
-        >Alle akzeptieren</button>
+        >{t("consent.all")}</button>
       </div>
 
       <button
@@ -106,17 +108,17 @@ export default function CookieConsent() {
         className="btn btn-ghost"
         style={{ fontSize: 11, padding: "6px 12px", width: "100%" }}
       >
-        {showDetail ? "Details ausblenden ↑" : "Details / Verwalten ↓"}
+        {showDetail ? t("consent.details.hide") : t("consent.details.show")}
       </button>
     </div>
   );
 }
 
 function Section({
-  title, subtitle, color, forced, children,
+  title, subtitle, color, forced, forcedLabel, children,
 }: {
   title: string; subtitle: string; color: string;
-  forced?: boolean; children: React.ReactNode;
+  forced?: boolean; forcedLabel?: string; children: React.ReactNode;
 }) {
   return (
     <div style={{
@@ -130,7 +132,7 @@ function Section({
             fontSize: 9, fontWeight: 800, padding: "2px 6px",
             background: "var(--surface)", border: "1px solid var(--border)",
             borderRadius: 4, color: "var(--text-muted)", letterSpacing: 1,
-          }}>PFLICHT</span>
+          }}>{(forcedLabel || "REQUIRED").toUpperCase()}</span>
         )}
       </div>
       <div style={{ fontSize: 10, color: "var(--text-muted)", marginBottom: 6 }}>{subtitle}</div>

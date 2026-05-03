@@ -1,14 +1,14 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import { LANGUAGES, T, type Lang } from "@/lib/i18n";
+import { LANGUAGES, T, tr, type Lang, type TKey } from "@/lib/i18n";
 
 const KEY = "kalion-lang";
 
 type Ctx = {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: (key: keyof typeof T) => string;
+  t: (key: TKey) => string;
 };
 
 const LanguageCtx = createContext<Ctx>({
@@ -31,7 +31,6 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
       document.documentElement.setAttribute("lang", stored);
       return;
     }
-    // Falls kein gespeicherter Wert: Browser-Sprache prüfen
     const browser = (typeof navigator !== "undefined" ? navigator.language.slice(0, 2) : "de") as Lang;
     if (LANGUAGES.some((l) => l.id === browser)) {
       setLangState(browser);
@@ -45,14 +44,7 @@ export default function LanguageProvider({ children }: { children: React.ReactNo
     document.documentElement.setAttribute("lang", l);
   }
 
-  const tFn = useCallback(
-    (key: keyof typeof T) => {
-      const entry = T[key];
-      if (!entry) return String(key);
-      return entry[lang] ?? entry.de;
-    },
-    [lang]
-  );
+  const tFn = useCallback((key: TKey) => tr(key, lang), [lang]);
 
   return (
     <LanguageCtx.Provider value={{ lang, setLang, t: tFn }}>

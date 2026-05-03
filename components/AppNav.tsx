@@ -5,28 +5,30 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import BrandLogo from "@/components/BrandLogo";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function AppNav({ userName, isAdmin }: { userName?: string | null; isAdmin?: boolean | null } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    toast("Bis bald! 👋", { type: "info" });
+    toast(t("auth.bye.toast"), { type: "info" });
     router.push("/");
     router.refresh();
   }
 
   const links = [
-    { href: "/dashboard", label: "Home" },
-    { href: "/dashboard/plans", label: "Pläne" },
-    { href: "/dashboard/training", label: "Training" },
-    { href: "/dashboard/progress", label: "Stats" },
-    { href: "/dashboard/body", label: "Körper" },
-    { href: "/dashboard/nutrition", label: "Nutrition" },
-    { href: "/dashboard/goals", label: "Ziele" },
+    { href: "/dashboard",           tk: "nav.home" as const },
+    { href: "/dashboard/plans",     tk: "nav.plans" as const },
+    { href: "/dashboard/training",  tk: "nav.training" as const },
+    { href: "/dashboard/progress",  tk: "nav.stats" as const },
+    { href: "/dashboard/body",      tk: "nav.body" as const },
+    { href: "/dashboard/nutrition", tk: "nav.nutrition" as const },
+    { href: "/dashboard/goals",     tk: "nav.goals" as const },
   ];
 
   return (
@@ -39,7 +41,7 @@ export default function AppNav({ userName, isAdmin }: { userName?: string | null
         {links.map((l) => (
           <Link key={l.href} href={l.href}
             className={`app-nav-link ${pathname === l.href ? "active" : ""}`}>
-            {l.label}
+            {t(l.tk)}
           </Link>
         ))}
       </div>
@@ -49,11 +51,11 @@ export default function AppNav({ userName, isAdmin }: { userName?: string | null
           <Link href="/dashboard/admin" className="btn btn-ghost" style={{
             padding: "6px 10px", fontSize: 11, fontWeight: 800,
             border: "1px solid var(--accent-border)", color: "var(--accent)",
-          }}>🛡️ Admin</Link>
+          }}>🛡️ {t("nav.admin")}</Link>
         )}
         <Link href="/dashboard/settings" className="btn btn-ghost" style={{ padding: "8px 12px" }}>⚙️</Link>
         <button onClick={handleLogout} className="btn btn-ghost" style={{ padding: "8px 12px", fontSize: 12 }}>
-          Logout
+          {t("nav.logout")}
         </button>
       </div>
     </div>

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { reopenConsentDialog } from "@/lib/consent";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function LegalFooter() {
+  const { t } = useLanguage();
   return (
     <footer style={{
       marginTop: 60,
@@ -15,10 +17,10 @@ export default function LegalFooter() {
     }}>
       <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginBottom: 8 }}>
         <Link href="/impressum" style={{ color: "var(--text-dim)", textDecoration: "none", fontWeight: 600 }}>
-          Impressum
+          {t("footer.imprint")}
         </Link>
         <Link href="/datenschutz" style={{ color: "var(--text-dim)", textDecoration: "none", fontWeight: 600 }}>
-          Datenschutz
+          {t("footer.privacy")}
         </Link>
         <button
           onClick={reopenConsentDialog}
@@ -28,7 +30,7 @@ export default function LegalFooter() {
             fontFamily: "inherit", fontSize: "inherit", cursor: "pointer",
           }}
         >
-          Cookie-Einstellungen
+          {t("footer.cookies")}
         </button>
       </div>
       <div style={{ fontSize: 11, opacity: 0.6 }}>

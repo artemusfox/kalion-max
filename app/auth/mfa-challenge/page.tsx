@@ -8,6 +8,8 @@ import { useToast } from "@/components/Toast";
 import { getFirstVerifiedFactorId, getAalState } from "@/lib/mfa";
 import { normalizeCode } from "@/lib/recovery-codes";
 import BrandLogo from "@/components/BrandLogo";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function MfaChallengePage() {
   return (
@@ -18,6 +20,7 @@ export default function MfaChallengePage() {
 }
 
 function MfaChallengeInner() {
+  const { t } = useLanguage();
   const router = useRouter();
   const params = useSearchParams();
   const next = params.get("next") || "/dashboard";
@@ -50,17 +53,17 @@ function MfaChallengeInner() {
     setBusy(true); setError(null);
     const supabase = createClient();
     const { data: chal, error: chalErr } = await supabase.auth.mfa.challenge({ factorId });
-    if (chalErr || !chal) { setBusy(false); setError("Challenge fehlgeschlagen — neu laden"); return; }
+    if (chalErr || !chal) { setBusy(false); setError(t("mfa.code.invalid")); return; }
     const { error } = await supabase.auth.mfa.verify({
       factorId, challengeId: chal.id, code,
     });
     if (error) {
       setBusy(false);
-      setError("Code falsch oder abgelaufen — versuche den nächsten");
+      setError(t("mfa.code.invalid"));
       setCode("");
       return;
     }
-    toast("Verifiziert ⚡", { type: "success", icon: "🔐" });
+    toast(t("mfa.verified"), { type: "success", icon: "🔐" });
     router.replace(next);
     router.refresh();
   }
@@ -75,11 +78,11 @@ function MfaChallengeInner() {
     setBusy(false);
     if (rpcErr) { setError("Fehler beim Einlösen — versuche nochmal"); return; }
     if (!data) {
-      setError("Code ungültig oder bereits verwendet");
+      setError(t("mfa.code.invalid.recovery"));
       setRecoveryCode("");
       return;
     }
-    toast("2FA wurde zurückgesetzt — bitte neu einrichten", { type: "success", icon: "🔓" });
+    toast(t("mfa.reset.toast"), { type: "success", icon: "🔓" });
     // Session ist nun aal1, aber kein Faktor mehr → AAL-Check wird durchgehen
     router.replace(next.includes("/admin") ? "/dashboard/settings?mfa-required=1" : next);
     router.refresh();
@@ -98,9 +101,9 @@ function MfaChallengeInner() {
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 8 }}>
             <BrandLogo size={56} textSize={26} />
           </div>
-          <div className="auth-title">🔐 Zwei-Faktor</div>
+          <div className="auth-title">{t("mfa.title")}</div>
           <div className="auth-sub">
-            {mode === "totp" ? "Code aus deiner Authenticator-App" : "Notfall-Code eingeben"}
+            {mode === "totp" ? t("mfa.sub.totp") : t("mfa.sub.recovery")}
           </div>
         </div>
 
@@ -129,7 +132,7 @@ function MfaChallengeInner() {
               className="btn btn-primary btn-block"
               disabled={busy || code.length !== 6 || !factorId}
             >
-              {busy ? <div className="spinner" /> : "Bestätigen"}
+              {busy ? <div className="spinner" /> : t("mfa.confirm")}
             </button>
           </form>
         ) : (
@@ -147,9 +150,9 @@ function MfaChallengeInner() {
               }}
             />
 
-            <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5, padding: "0 4px" }}>
-              ⚠️ Ein Notfall-Code <strong>setzt deine 2FA zurück</strong>. Du wirst danach zum Settings geleitet, um sie neu einzurichten.
-            </div>
+            <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5, padding: "0 4px" }}
+              dangerouslySetInnerHTML={{ __html: t("mfa.recovery.warn") }}
+            />
 
             {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
 
@@ -158,7 +161,7 @@ function MfaChallengeInner() {
               className="btn btn-primary btn-block"
               disabled={busy || normalizeCode(recoveryCode).length < 6}
             >
-              {busy ? <div className="spinner" /> : "Code einlösen"}
+              {busy ? <div className="spinner" /> : t("mfa.recovery.consume")}
             </button>
           </form>
         )}
@@ -169,14 +172,17 @@ function MfaChallengeInner() {
             className="btn btn-ghost"
             style={{ fontSize: 12 }}
           >
-            {mode === "totp" ? "🆘 Notfall-Code verwenden" : "← Zurück zum App-Code"}
+            {mode === "totp" ? t("mfa.use.recovery") : t("mfa.back.totp")}
           </button>
         </div>
 
         <div className="auth-switch" style={{ marginTop: 8 }}>
           <button onClick={logout} className="btn btn-ghost" style={{ fontSize: 12 }}>
-            Abbrechen / Logout
+            {t("mfa.cancel")}
           </button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+          <LanguageSwitch compact />
         </div>
       </div>
     </div>
