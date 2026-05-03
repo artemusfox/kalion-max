@@ -10,6 +10,7 @@ import { getAalState } from "@/lib/mfa";
 import BrandLogo from "@/components/BrandLogo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/components/LanguageProvider";
+import OAuthButtons from "@/components/OAuthButtons";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -92,6 +93,8 @@ export default function LoginPage() {
             {loading ? <div className="spinner" /> : t("auth.signin.btn")}
           </button>
         </form>
+
+        <OAuthButtons />
 
         <div className="auth-switch">
           {t("auth.no.account")} <Link href="/auth/signup">{t("auth.register")}</Link>

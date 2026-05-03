@@ -9,6 +9,7 @@ import { translateAuthError } from "@/lib/auth-errors";
 import BrandLogo from "@/components/BrandLogo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/components/LanguageProvider";
+import OAuthButtons from "@/components/OAuthButtons";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -136,6 +137,8 @@ export default function SignupPage() {
             {loading ? <div className="spinner" /> : t("auth.signup.btn")}
           </button>
         </form>
+
+        <OAuthButtons />
 
         <div className="auth-switch">
           {t("auth.have.account")} <Link href="/auth/login">{t("auth.signin.link")}</Link>
