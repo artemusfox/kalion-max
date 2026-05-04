@@ -13,6 +13,7 @@ import PlateVisualizer, { PlateBreakdown } from "@/components/PlateVisualizer";
 import { readPrefs, DEFAULT_PREFS, type UserPrefs } from "@/lib/units";
 import RestTimerDonut from "@/components/RestTimerDonut";
 import { useLanguage } from "@/components/LanguageProvider";
+import ShareButton from "@/components/ShareButton";
 
 type SetData = {
   reps?: number;
@@ -340,9 +341,26 @@ export default function WorkoutSession({
               value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
 
-          <button className="btn btn-primary btn-block" onClick={saveWorkout} disabled={saving} style={{ padding: 18 }}>
-            {saving ? <div className="spinner" /> : "✓ Workout speichern"}
-          </button>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
+            <ShareButton
+              card={{
+                title: dayName || "Workout",
+                subtitle: `${lang === "en" ? "Week" : "Woche"} ${week}`,
+                date: new Date(),
+                stats: [
+                  { label: lang === "en" ? "Duration" : "Dauer",  value: `${mm}:${String(ss).padStart(2,"0")}` },
+                  { label: lang === "en" ? "Sets" : "Sätze",      value: `${doneSets}/${totalSets}` },
+                  ...(totalVolume > 0 ? [{ label: lang === "en" ? "Volume" : "Volumen", value: `${totalVolume} kg` }] : []),
+                ],
+                accentColor: getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#22D3EE",
+              }}
+              shareUrl={typeof window !== "undefined" ? window.location.origin : undefined}
+              buttonStyle={{ padding: 18, width: "100%" }}
+            />
+            <button className="btn btn-primary" onClick={saveWorkout} disabled={saving} style={{ padding: 18 }}>
+              {saving ? <div className="spinner" /> : (lang === "en" ? "✓ Save workout" : "✓ Workout speichern")}
+            </button>
+          </div>
         </div>
       </div>
     );

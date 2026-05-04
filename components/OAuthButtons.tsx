@@ -35,7 +35,7 @@ const PROVIDERS: { id: OAuthProvider; label: string; icon: string; bg: string; c
   },
 ];
 
-export default function OAuthButtons({ enabledProviders = ["google", "github"] }: { enabledProviders?: OAuthProvider[] }) {
+export default function OAuthButtons({ enabledProviders = ["google"] }: { enabledProviders?: OAuthProvider[] }) {
   const { toast } = useToast();
   const { lang } = useLanguage();
   const [loading, setLoading] = useState<OAuthProvider | null>(null);
