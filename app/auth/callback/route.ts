@@ -12,15 +12,12 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (error) {
-      const failUrl = url.clone();
-      failUrl.pathname = "/auth/login";
+      const failUrl = new URL("/auth/login", url.origin);
       failUrl.search = `?error=${encodeURIComponent(error.message)}`;
       return NextResponse.redirect(failUrl);
     }
   }
 
-  const redirectUrl = url.clone();
-  redirectUrl.pathname = next;
-  redirectUrl.search = "";
+  const redirectUrl = new URL(next, url.origin);
   return NextResponse.redirect(redirectUrl);
 }
