@@ -8,7 +8,8 @@ import StreakFlame from "@/components/StreakFlame";
 import ActivityFeed from "@/components/ActivityFeed";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
-import { readWidgetSettings, type WidgetId } from "@/lib/widgets";
+import UserAvatar from "@/components/UserAvatar";
+import { readWidgetSettings, readWidgetOrder, type WidgetId } from "@/lib/widgets";
 
 type Props = {
   displayName: string;
@@ -25,6 +26,7 @@ type Props = {
   recentWorkouts: any[];
   activePlan: any;
   profileSettings: any;
+  avatarUrl?: string | null;
 };
 
 const QUOTES_DE = [
@@ -49,7 +51,7 @@ const MONTHS_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","
 export default function DashboardContent(p: Props) {
   const { t, lang } = useLanguage();
   const widgets = readWidgetSettings(p.profileSettings);
-  const show = (id: WidgetId) => widgets[id];
+  const order = readWidgetOrder(p.profileSettings);
 
   const greeting =
     p.hour < 5  ? t("dash.greeting.night") :
@@ -61,26 +63,29 @@ export default function DashboardContent(p: Props) {
   const quote = quotes[dayOfYear % quotes.length];
   const months = lang === "en" ? MONTHS_EN : MONTHS_DE;
 
-  return (
-    <div>
-      {show("hero") && (
+  const widgetRenderers: Record<WidgetId, () => React.ReactNode> = {
+    hero: () => (
       <div className="card" style={{
         background: "linear-gradient(135deg, var(--accent-tint), transparent)",
         borderColor: "var(--accent-border)",
       }}>
-        <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 2, fontWeight: 800, marginBottom: 6 }}>
-          {greeting}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 6 }}>
+          <UserAvatar avatarUrl={p.avatarUrl} displayName={p.displayName} size={56} ring />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 2, fontWeight: 800 }}>
+              {greeting}
+            </div>
+            <h1 style={{ fontSize: 28, color: "var(--accent)", letterSpacing: -1, marginTop: 2, marginBottom: 0 }}>
+              {t("dash.hey")} {p.displayName}! ⚡
+            </h1>
+          </div>
         </div>
-        <h1 style={{ fontSize: 32, color: "var(--accent)", marginBottom: 10, letterSpacing: -1 }}>
-          {t("dash.hey")} {p.displayName}! ⚡
-        </h1>
         <p style={{ color: "var(--text-dim)", fontSize: 15, marginBottom: 0 }}>
           &ldquo;{quote}&rdquo;
         </p>
       </div>
-      )}
-
-      {show("active_plan") && (p.activePlan ? (
+    ),
+    active_plan: () => (p.activePlan ? (
         <div className="card" style={{
           background: `linear-gradient(135deg, ${SPORT_COLORS[p.activePlan.sport as Sport]}15, transparent)`,
           borderColor: `${SPORT_COLORS[p.activePlan.sport as Sport]}30`,
@@ -108,21 +113,17 @@ export default function DashboardContent(p: Props) {
           </div>
           <Link href="/dashboard/plans" className="btn btn-primary">{t("dash.choose.plan")}</Link>
         </div>
-      ))}
-
-      {show("routine_morning") && <RoutineChecklist type="morning" />}
-
-      {show("habits") && (
-        <div className="card">
-          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{t("habits.title")}</div>
-          <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14 }}>{t("habits.desc")}</div>
-          <HabitTracker />
-        </div>
-      )}
-
-      {show("routine_evening") && <RoutineChecklist type="evening" />}
-
-      {show("activity") && (
+      )),
+    routine_morning: () => <RoutineChecklist type="morning" />,
+    habits: () => (
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{t("habits.title")}</div>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14 }}>{t("habits.desc")}</div>
+        <HabitTracker />
+      </div>
+    ),
+    routine_evening: () => <RoutineChecklist type="evening" />,
+    activity: () => (
       <div className="card">
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
           🌍 {lang === "en" ? "Live activity" : "Live-Aktivität"}
@@ -134,9 +135,8 @@ export default function DashboardContent(p: Props) {
         </div>
         <ActivityFeed compact />
       </div>
-      )}
-
-      {show("level_stats") && (
+    ),
+    level_stats: () => (
       <div className="card">
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
           <div style={{
@@ -166,9 +166,8 @@ export default function DashboardContent(p: Props) {
           <Stat label={t("dash.stat.records")} value={p.prCount} color="var(--teal)" icon="🏆" />
         </div>
       </div>
-      )}
-
-      {show("recent") && (
+    ),
+    recent: () => (
       <div className="card">
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>{t("dash.recent")}</div>
         {p.recentWorkouts && p.recentWorkouts.length > 0 ? (
@@ -204,9 +203,8 @@ export default function DashboardContent(p: Props) {
           </div>
         )}
       </div>
-      )}
-
-      {show("features") && (
+    ),
+    features: () => (
       <div className="card">
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 16 }}>{t("dash.features")}</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
@@ -217,7 +215,17 @@ export default function DashboardContent(p: Props) {
           <FeatureLink href="/dashboard/goals"     icon="🎯" label={t("dash.feat.goals")}     desc={t("dash.feat.goals.desc")} />
         </div>
       </div>
-      )}
+    ),
+  };
+
+  return (
+    <div>
+      {order.map((id) => {
+        if (!widgets[id]) return null;
+        const render = widgetRenderers[id];
+        if (!render) return null;
+        return <div key={id}>{render()}</div>;
+      })}
     </div>
   );
 }

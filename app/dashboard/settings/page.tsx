@@ -9,6 +9,8 @@ import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/
 import MfaSettings from "@/components/MfaSettings";
 import UnitsSettings from "@/components/UnitsSettings";
 import WidgetSettings from "@/components/WidgetSettings";
+import UserAvatar from "@/components/UserAvatar";
+import AvatarPicker from "@/components/AvatarPicker";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -43,6 +45,8 @@ function SettingsInner() {
   const [profile, setProfile] = useState<any>(null);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -58,6 +62,7 @@ function SettingsInner() {
     if (data) {
       setProfile(data);
       setDisplayName(data.display_name || "");
+      setAvatarUrl(data.avatar_url || null);
     }
     setLoading(false);
   }
@@ -144,6 +149,26 @@ function SettingsInner() {
           <div style={{ fontSize: 14, fontWeight: 800 }}>{tr("settings.profile")}</div>
           <LanguageSwitch compact />
         </div>
+
+        {/* Avatar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+          <UserAvatar avatarUrl={avatarUrl} displayName={displayName} size={64} ring />
+          <div style={{ flex: 1 }}>
+            <button
+              onClick={() => setShowAvatarPicker(true)}
+              className="btn"
+              style={{ padding: "8px 16px", fontSize: 13 }}
+            >
+              {lang === "en" ? "Change avatar" : "Avatar ändern"}
+            </button>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 6 }}>
+              {lang === "en"
+                ? "Pick from 20 fitness presets or upload your own photo"
+                : "20 Fitness-Vorlagen oder eigenes Foto"}
+            </div>
+          </div>
+        </div>
+
         <div className="form-group">
           <label className="form-label">{tr("common.email")}</label>
           <input className="form-input" value={email} disabled />
@@ -155,6 +180,15 @@ function SettingsInner() {
         <button className="btn btn-primary" onClick={saveProfile} disabled={saving}>
           {saving ? <div className="spinner" /> : tr("common.save")}
         </button>
+
+        {showAvatarPicker && (
+          <AvatarPicker
+            currentUrl={avatarUrl}
+            displayName={displayName}
+            onClose={() => setShowAvatarPicker(false)}
+            onChange={(newUrl) => { setAvatarUrl(newUrl); router.refresh(); }}
+          />
+        )}
       </div>
 
       <div className="card">

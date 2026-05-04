@@ -37,6 +37,7 @@ export default async function DashboardPage() {
       recentWorkouts={recentWorkouts || []}
       activePlan={activePlan}
       profileSettings={profile?.settings}
+      avatarUrl={profile?.avatar_url}
     />
   );
 }

@@ -7,8 +7,15 @@ import { useToast } from "@/components/Toast";
 import BrandLogo from "@/components/BrandLogo";
 import { useLanguage } from "@/components/LanguageProvider";
 import UserStats from "@/components/UserStats";
+import UserAvatar from "@/components/UserAvatar";
 
-export default function AppNav({ userName, isAdmin }: { userName?: string | null; isAdmin?: boolean | null } = {}) {
+export default function AppNav({
+  userName, isAdmin, avatarUrl,
+}: {
+  userName?: string | null;
+  isAdmin?: boolean | null;
+  avatarUrl?: string | null;
+} = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -34,8 +41,13 @@ export default function AppNav({ userName, isAdmin }: { userName?: string | null
 
   return (
     <div className="app-nav">
-      <Link href="/dashboard" style={{ textDecoration: "none", color: "inherit" }}>
-        <BrandLogo size={30} textSize={18} />
+      <Link href="/dashboard" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 10 }}>
+        <UserAvatar avatarUrl={avatarUrl} displayName={userName} size={30} ring />
+        <BrandLogo size={28} textSize={16} withText={false} />
+        <div className="brand" style={{ fontSize: 16, lineHeight: 1, display: "flex", alignItems: "baseline" }}>
+          <span className="brand-kalion">KALION</span>
+          <span className="brand-max" style={{ marginLeft: 4 }}>MAX</span>
+        </div>
       </Link>
 
       <div className="app-nav-links">

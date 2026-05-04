@@ -48,3 +48,21 @@ export function readWidgetSettings(profileSettings: any): Record<WidgetId, boole
   }
   return result;
 }
+
+export function readWidgetOrder(profileSettings: any): WidgetId[] {
+  const stored = profileSettings?.dashboard_widgets_order;
+  if (!Array.isArray(stored)) return [...ALL_WIDGETS];
+  const known = new Set<WidgetId>();
+  const result: WidgetId[] = [];
+  for (const w of stored) {
+    if (ALL_WIDGETS.includes(w as WidgetId) && !known.has(w as WidgetId)) {
+      result.push(w as WidgetId);
+      known.add(w as WidgetId);
+    }
+  }
+  // Falls neue Widget-IDs hinzugekommen sind: hinten anhängen
+  for (const w of ALL_WIDGETS) {
+    if (!known.has(w)) result.push(w);
+  }
+  return result;
+}
