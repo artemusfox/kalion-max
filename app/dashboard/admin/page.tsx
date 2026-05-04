@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import UserGeoMap from "@/components/UserGeoMap";
 
 export default async function AdminOverviewPage() {
   const supabase = await createClient();
@@ -84,6 +85,14 @@ export default async function AdminOverviewPage() {
             Noch keine Aktionen geloggt.
           </div>
         )}
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>🌍 User-Geo</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+          Wo deine User herkommen — automatisch via Vercel-Geo-Headers, anonymisiert aggregiert.
+        </div>
+        <UserGeoMap />
       </div>
 
       <div className="card">

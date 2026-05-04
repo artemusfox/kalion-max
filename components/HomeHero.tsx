@@ -5,6 +5,7 @@ import BrandLogo from "@/components/BrandLogo";
 import LegalFooter from "@/components/LegalFooter";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import UserStats from "@/components/UserStats";
+import UserGeoMap from "@/components/UserGeoMap";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function HomeHero() {
@@ -85,6 +86,17 @@ export default function HomeHero() {
               <div style={{ fontSize: 12, color: "var(--text-dim)", lineHeight: 1.5 }}>{t(f.descKey)}</div>
             </div>
           ))}
+        </div>
+
+        {/* Geo-Heatmap Teaser */}
+        <div className="card" style={{ marginTop: 32, textAlign: "left" }}>
+          <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>
+            🌍 {t("home.sports.heading") /* placeholder until i18n key */}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14, textAlign: "center" }}>
+            Athletes from around the world · Athleten aus aller Welt
+          </div>
+          <UserGeoMap compact />
         </div>
 
         <LegalFooter />

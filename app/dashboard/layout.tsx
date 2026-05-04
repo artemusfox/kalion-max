@@ -1,6 +1,7 @@
 import AppNav from "@/components/AppNav";
 import LegalFooter from "@/components/LegalFooter";
 import PresenceHeartbeat from "@/components/PresenceHeartbeat";
+import GeoCapture from "@/components/GeoCapture";
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
@@ -18,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <>
       <PresenceHeartbeat />
+      <GeoCapture />
       <AppNav userName={profile?.display_name} isAdmin={profile?.is_admin} />
       <div className="container page-content">{children}</div>
       <LegalFooter />
