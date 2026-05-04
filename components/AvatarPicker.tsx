@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useLanguage } from "@/components/LanguageProvider";
 import { AVATAR_PRESETS } from "@/lib/avatars";
+import { deleteOldAvatar } from "@/lib/avatar-storage";
 import UserAvatar from "@/components/UserAvatar";
+import AvatarCropper from "@/components/AvatarCropper";
 
 type Props = {
   currentUrl?: string | null;
@@ -19,6 +21,7 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"preset" | "upload">("preset");
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
   async function setPreset(presetId: string) {
@@ -26,6 +29,8 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setBusy(false); return; }
+    // Alten Storage-File löschen falls vorhanden
+    await deleteOldAvatar(supabase, currentUrl);
     const newUrl = `preset:${presetId}`;
     const { error } = await supabase.from("profiles").update({ avatar_url: newUrl }).eq("id", user.id);
     setBusy(false);
@@ -35,26 +40,32 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
     onClose();
   }
 
-  async function uploadFile(f: File) {
+  function pickFile(f: File) {
     if (!f.type.startsWith("image/")) {
       toast(lang === "en" ? "Please select an image" : "Bitte ein Bild wählen", { type: "error" });
       return;
     }
-    if (f.size > 5 * 1024 * 1024) {
-      toast(lang === "en" ? "Max 5 MB" : "Max 5 MB", { type: "error" });
+    if (f.size > 10 * 1024 * 1024) {
+      toast(lang === "en" ? "Max 10 MB" : "Max 10 MB", { type: "error" });
       return;
     }
+    // Cropper öffnen statt direkt hochladen
+    setCropFile(f);
+  }
+
+  async function uploadCropped(blob: Blob) {
+    setCropFile(null);
     setBusy(true);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setBusy(false); return; }
-    const ext = f.name.split(".").pop()?.toLowerCase() || "jpg";
-    // Cache-Buster im Pfad: timestamp damit alte Variante in CDN nicht persistiert
-    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("avatars").upload(path, f, {
-      cacheControl: "3600", upsert: true,
+    const path = `${user.id}/avatar-${Date.now()}.jpg`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, blob, {
+      cacheControl: "3600", upsert: true, contentType: "image/jpeg",
     });
     if (upErr) { setBusy(false); toast(upErr.message, { type: "error" }); return; }
+    // Alten File löschen NACH erfolgreichem Upload
+    await deleteOldAvatar(supabase, currentUrl);
     const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
     const { error: updErr } = await supabase.from("profiles").update({ avatar_url: pub.publicUrl }).eq("id", user.id);
     setBusy(false);
@@ -69,6 +80,7 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setBusy(false); return; }
+    await deleteOldAvatar(supabase, currentUrl);
     await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
     setBusy(false);
     onChange(null);
@@ -167,7 +179,7 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
                 type="file"
                 accept="image/*"
                 style={{ display: "none" }}
-                onChange={(e) => { if (e.target.files?.[0]) uploadFile(e.target.files[0]); }}
+                onChange={(e) => { if (e.target.files?.[0]) pickFile(e.target.files[0]); }}
               />
               <button
                 onClick={() => fileInput.current?.click()}
@@ -178,8 +190,8 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
               </button>
               <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
                 {lang === "en"
-                  ? "JPG or PNG, max 5 MB. Square images work best."
-                  : "JPG oder PNG, max 5 MB. Quadratische Bilder funktionieren am besten."}
+                  ? "JPG or PNG, max 10 MB. You can crop after selecting."
+                  : "JPG oder PNG, max 10 MB. Zuschneiden geht danach."}
               </div>
             </div>
           </div>
@@ -194,6 +206,14 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
           {lang === "en" ? "↻ Remove avatar" : "↻ Avatar entfernen"}
         </button>
       </div>
+
+      {cropFile && (
+        <AvatarCropper
+          file={cropFile}
+          onCancel={() => setCropFile(null)}
+          onConfirm={uploadCropped}
+        />
+      )}
     </div>
   );
 }

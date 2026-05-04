@@ -1,15 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SPORT_ICONS, SPORT_COLORS, type Sport } from "@/lib/types";
 import { sportLabel } from "@/lib/labels";
 import { useLanguage } from "@/components/LanguageProvider";
+import { createClient } from "@/lib/supabase-client";
 import StreakFlame from "@/components/StreakFlame";
 import ActivityFeed from "@/components/ActivityFeed";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
 import UserAvatar from "@/components/UserAvatar";
-import { readWidgetSettings, readWidgetOrder, type WidgetId } from "@/lib/widgets";
+import { readWidgetSettings, readWidgetOrder, ALL_WIDGETS, type WidgetId } from "@/lib/widgets";
 
 type Props = {
   displayName: string;
@@ -50,8 +52,59 @@ const MONTHS_EN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","
 
 export default function DashboardContent(p: Props) {
   const { t, lang } = useLanguage();
-  const widgets = readWidgetSettings(p.profileSettings);
-  const order = readWidgetOrder(p.profileSettings);
+  const [widgets, setWidgets] = useState<Record<WidgetId, boolean>>(() => readWidgetSettings(p.profileSettings));
+  const [order, setOrder] = useState<WidgetId[]>(() => readWidgetOrder(p.profileSettings));
+  const [editing, setEditing] = useState(false);
+  const [dragId, setDragId] = useState<WidgetId | null>(null);
+
+  // Falls Settings sich ändern (z.B. nach Server-Refresh), übernehmen
+  useEffect(() => {
+    setWidgets(readWidgetSettings(p.profileSettings));
+    setOrder(readWidgetOrder(p.profileSettings));
+  }, [p.profileSettings]);
+
+  async function persistOrder(nextOrder: WidgetId[]) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: prof } = await supabase.from("profiles").select("settings").single();
+    const settings = { ...(prof?.settings || {}), dashboard_widgets_order: nextOrder };
+    await supabase.from("profiles").update({ settings }).eq("id", user.id);
+  }
+
+  async function persistVisibility(next: Record<WidgetId, boolean>) {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: prof } = await supabase.from("profiles").select("settings").single();
+    const settings = { ...(prof?.settings || {}), dashboard_widgets: next };
+    await supabase.from("profiles").update({ settings }).eq("id", user.id);
+  }
+
+  function reorder(from: WidgetId, to: WidgetId) {
+    if (from === to) return;
+    const arr = [...order];
+    const fromIdx = arr.indexOf(from);
+    const toIdx = arr.indexOf(to);
+    if (fromIdx === -1 || toIdx === -1) return;
+    arr.splice(fromIdx, 1);
+    arr.splice(toIdx, 0, from);
+    setOrder(arr);
+    persistOrder(arr);
+  }
+
+  function hide(id: WidgetId) {
+    const next = { ...widgets, [id]: false };
+    setWidgets(next);
+    persistVisibility(next);
+  }
+
+  function showAll() {
+    const next: Record<WidgetId, boolean> = { ...widgets };
+    for (const id of ALL_WIDGETS) next[id] = true;
+    setWidgets(next);
+    persistVisibility(next);
+  }
 
   const greeting =
     p.hour < 5  ? t("dash.greeting.night") :
@@ -218,14 +271,120 @@ export default function DashboardContent(p: Props) {
     ),
   };
 
+  const visibleCount = order.filter((id) => widgets[id]).length;
+  const hasHidden = order.some((id) => !widgets[id]);
+
   return (
     <div>
+      {/* Edit-Toolbar */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        marginBottom: 14, gap: 8, flexWrap: "wrap",
+      }}>
+        <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700 }}>
+          {editing
+            ? (lang === "en" ? "Drag cards to reorder · tap × to hide" : "Karten ziehen zum Sortieren · × zum Ausblenden")
+            : `${visibleCount} ${lang === "en" ? "modules" : "Module"}`}
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {editing && hasHidden && (
+            <button onClick={showAll} className="btn btn-ghost" style={{ fontSize: 11, padding: "5px 10px" }}>
+              ↻ {lang === "en" ? "Show all" : "Alle zeigen"}
+            </button>
+          )}
+          <button
+            onClick={() => setEditing((s) => !s)}
+            className="btn btn-ghost"
+            style={{
+              fontSize: 11, padding: "5px 12px",
+              border: editing ? "1px solid var(--accent)" : "1px solid var(--border)",
+              color: editing ? "var(--accent)" : "var(--text-dim)",
+              background: editing ? "var(--accent-tint)" : "transparent",
+            }}
+          >
+            {editing
+              ? `✓ ${lang === "en" ? "Done" : "Fertig"}`
+              : `✏ ${lang === "en" ? "Edit" : "Bearbeiten"}`}
+          </button>
+        </div>
+      </div>
+
+      {/* Widget-Liste */}
       {order.map((id) => {
         if (!widgets[id]) return null;
         const render = widgetRenderers[id];
         if (!render) return null;
-        return <div key={id}>{render()}</div>;
+        const dragging = dragId === id;
+        return (
+          <div
+            key={id}
+            draggable={editing}
+            onDragStart={(e) => { if (editing) { setDragId(id); e.dataTransfer.effectAllowed = "move"; } }}
+            onDragEnd={() => setDragId(null)}
+            onDragOver={(e) => { if (editing && dragId && dragId !== id) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; } }}
+            onDrop={(e) => {
+              if (!editing || !dragId || dragId === id) return;
+              e.preventDefault();
+              reorder(dragId, id);
+              setDragId(null);
+            }}
+            style={{
+              position: "relative",
+              opacity: dragging ? 0.4 : 1,
+              cursor: editing ? "grab" : "default",
+              transition: "opacity 0.15s",
+            }}
+          >
+            {render()}
+            {editing && (
+              <>
+                {/* Drag-Handle (links oben) */}
+                <div style={{
+                  position: "absolute", top: 8, left: 8, zIndex: 5,
+                  width: 32, height: 32, borderRadius: 8,
+                  background: "var(--bg-elevated)",
+                  border: "1px solid var(--accent)",
+                  color: "var(--accent)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16, pointerEvents: "none",
+                }}>⋮⋮</div>
+                {/* Hide-Button (rechts oben) */}
+                <button
+                  onClick={() => hide(id)}
+                  aria-label="Hide widget"
+                  style={{
+                    position: "absolute", top: 8, right: 8, zIndex: 5,
+                    width: 32, height: 32, borderRadius: 8,
+                    background: "var(--bg-elevated)",
+                    border: "1px solid rgba(255,90,107,0.4)",
+                    color: "var(--red)", cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 16, fontWeight: 800,
+                  }}
+                >×</button>
+              </>
+            )}
+          </div>
+        );
       })}
+
+      {/* Wenn alles ausgeblendet ist: Einladung zum Reaktivieren */}
+      {visibleCount === 0 && (
+        <div className="card" style={{ textAlign: "center", padding: 32 }}>
+          <div style={{ fontSize: 32, marginBottom: 10 }}>🪄</div>
+          <div style={{ fontWeight: 700, marginBottom: 6 }}>
+            {lang === "en" ? "All modules hidden" : "Alle Module ausgeblendet"}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14 }}>
+            {lang === "en"
+              ? "Activate edit mode and tap 'Show all' to bring them back."
+              : "Aktiviere Bearbeiten und tippe auf 'Alle zeigen'."}
+          </div>
+          <button onClick={() => { setEditing(true); showAll(); }} className="btn btn-primary">
+            {lang === "en" ? "↻ Show all" : "↻ Alle zeigen"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
