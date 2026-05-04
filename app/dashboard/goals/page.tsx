@@ -8,6 +8,7 @@ import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
 import Confetti from "@/components/Confetti";
 import { useLanguage } from "@/components/LanguageProvider";
+import { badgeName, badgeDesc, exerciseName as exNameTr } from "@/lib/data-translations";
 
 export default function GoalsPage() {
   const { toast } = useToast();
@@ -185,8 +186,8 @@ export default function GoalsPage() {
                   opacity: earned ? 1 : 0.4, transition: "all 0.3s",
                 }}>
                   <div style={{ fontSize: 36, marginBottom: 8, filter: earned ? "none" : "grayscale(1)" }}>{b.icon}</div>
-                  <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{b.name}</div>
-                  <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.3 }}>{b.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>{badgeName(b.key, b.name, lang)}</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.3 }}>{badgeDesc(b.key, b.desc, lang)}</div>
                   <div style={{ fontSize: 11, color: earned ? "var(--accent)" : "var(--text-muted)", fontWeight: 800, marginTop: 6, fontFamily: "var(--font-mono)" }}>
                     +{b.xp} XP
                   </div>
@@ -201,6 +202,7 @@ export default function GoalsPage() {
 }
 
 function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () => void }) {
+  const { lang } = useLanguage();
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [target, setTarget] = useState("");
@@ -212,7 +214,10 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
   const [saving, setSaving] = useState(false);
 
   const exMatches = exSearch
-    ? EXERCISES.filter((e) => e.name.toLowerCase().includes(exSearch.toLowerCase())).slice(0, 6)
+    ? EXERCISES.filter((e) => {
+        const q = exSearch.toLowerCase();
+        return e.name.toLowerCase().includes(q) || exNameTr(e.id, e.name, lang).toLowerCase().includes(q);
+      }).slice(0, 6)
     : [];
   const linkedEx = linkedExId ? EX_BY_ID[linkedExId] : null;
 
@@ -269,7 +274,7 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
             borderRadius: 10,
           }}>
             <div style={{ flex: 1, fontSize: 13, fontWeight: 700 }}>
-              ⚡ {linkedEx.name}
+              ⚡ {exNameTr(linkedEx.id, linkedEx.name, lang)}
             </div>
             <button
               type="button"
@@ -303,7 +308,7 @@ function NewGoalForm({ onDone, onCancel }: { onDone: () => void; onCancel: () =>
                       cursor: "pointer", fontFamily: "inherit", fontSize: 12,
                       borderBottom: "1px solid var(--border)",
                     }}
-                  >{SPORT_ICONS[e.sport]} {e.name}</button>
+                  >{SPORT_ICONS[e.sport]} {exNameTr(e.id, e.name, lang)}</button>
                 ))}
               </div>
             )}

@@ -10,6 +10,7 @@ import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
 import { useLanguage } from "@/components/LanguageProvider";
 import { sportLabel } from "@/lib/labels";
+import { templateName, templateDesc } from "@/lib/data-translations";
 
 export default function PlansPage() {
   const router = useRouter();
@@ -179,9 +180,9 @@ export default function PlansPage() {
               <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
                 <div style={{ fontSize: 36 }}>{SPORT_ICONS[sport]}</div>
                 <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: 18, marginBottom: 4 }}>{t.name}</h3>
+                  <h3 style={{ fontSize: 18, marginBottom: 4 }}>{templateName(t.id, t.name, lang)}</h3>
                   <div style={{ fontSize: 13, color: "var(--text-dim)", marginBottom: 10, lineHeight: 1.5 }}>
-                    {t.description}
+                    {templateDesc(t.id, t.description || "", lang)}
                   </div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
                     <span className="sport-pill" style={{

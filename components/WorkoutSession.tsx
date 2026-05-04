@@ -14,6 +14,7 @@ import { readPrefs, DEFAULT_PREFS, type UserPrefs } from "@/lib/units";
 import RestTimerDonut from "@/components/RestTimerDonut";
 import { useLanguage } from "@/components/LanguageProvider";
 import ShareButton from "@/components/ShareButton";
+import { exerciseName as exNameTr, exerciseTip as exTipTr } from "@/lib/data-translations";
 
 type SetData = {
   reps?: number;
@@ -174,9 +175,10 @@ export default function WorkoutSession({
     setConfettiKey((k) => k + 1);
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([60, 30, 60, 30, 100]);
     speak(t("ws.pr.spoken"), lang === "en" ? "en-US" : "de-DE");
+    const exDisplayName = exNameTr(ex.exercise.id, ex.exercise.name, lang);
     toast(lang === "en"
-      ? `New PR: ${value} ${unit} on ${ex.exercise.name}!`
-      : `Neuer Rekord: ${value} ${unit} bei ${ex.exercise.name}!`,
+      ? `New PR: ${value} ${unit} on ${exDisplayName}!`
+      : `Neuer Rekord: ${value} ${unit} bei ${exDisplayName}!`,
       { type: "success", icon: "🏆" });
 
     // In DB speichern
@@ -414,14 +416,14 @@ export default function WorkoutSession({
             {lang === "en" ? `Exercise ${currentIdx + 1} of ${session.length}` : `Übung ${currentIdx + 1} von ${session.length}`}
           </div>
           <h2 style={{ fontSize: 30, letterSpacing: -1, marginBottom: 12, lineHeight: 1.1 }}>
-            {ex.exercise.name}
+            {exNameTr(ex.exercise.id, ex.exercise.name, lang)}
           </h2>
           {ex.exercise.tip && (
             <div style={{
               fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5, marginBottom: 12,
               padding: "12px 14px", background: "var(--surface)", borderRadius: 12,
               borderLeft: "3px solid var(--accent)",
-            }}>💡 {ex.exercise.tip}</div>
+            }}>💡 {exTipTr(ex.exercise.id, ex.exercise.tip, lang)}</div>
           )}
 
           {suggestions[ex.exercise.id]?.reason && (

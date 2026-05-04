@@ -10,8 +10,10 @@ import VolumeHeatmap from "@/components/VolumeHeatmap";
 import ExerciseChart from "@/components/ExerciseChart";
 import YearHeatmap from "@/components/YearHeatmap";
 import { useLanguage } from "@/components/LanguageProvider";
+import { exerciseName as exNameTr } from "@/lib/data-translations";
 
 export default function ProgressPage() {
+  const { lang } = useLanguage();
   const { toast } = useToast();
   const [tab, setTab] = useState<"prs" | "charts" | "heatmap" | "year" | "streak" | "tools">("prs");
   const [prs, setPrs] = useState<any[]>([]);
@@ -79,7 +81,7 @@ export default function ProgressPage() {
                 <div key={exId} className="card card-hover" style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{ width: 4, height: 44, borderRadius: 2, background: exercise ? SPORT_COLORS[exercise.sport] : "var(--text-muted)" }} />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800 }}>{latest.exercise_name}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}>{exNameTr(latest.exercise_id, latest.exercise_name, lang)}</div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                       {new Date(latest.recorded_at).toLocaleDateString("de-DE")} · {prList.length} Eintrag{prList.length !== 1 ? "" : ""}
                     </div>
