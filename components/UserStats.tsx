@@ -11,6 +11,7 @@ type Stats = { online_count: number; total_count: number };
 export default function UserStats({ compact = false }: { compact?: boolean }) {
   const { lang } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
+  const [failed, setFailed] = useState(false);
   const [pulse, setPulse] = useState(0);
 
   useEffect(() => {
@@ -18,15 +19,23 @@ export default function UserStats({ compact = false }: { compact?: boolean }) {
     let cancelled = false;
 
     async function fetchStats() {
-      const { data } = await supabase.rpc("get_user_stats");
+      const { data, error } = await supabase.rpc("get_user_stats");
       if (cancelled) return;
+      if (error) {
+        setFailed(true);
+        return;
+      }
       const row = Array.isArray(data) && data[0] ? data[0] : null;
       if (row) {
         setStats({
           online_count: Number(row.online_count) || 0,
           total_count:  Number(row.total_count)  || 0,
         });
-        setPulse((p) => p + 1); // triggert Pulse-Animation
+        setFailed(false);
+        setPulse((p) => p + 1);
+      } else {
+        // RPC existiert vermutlich noch nicht → Komponente verstecken
+        setFailed(true);
       }
     }
 
@@ -34,6 +43,9 @@ export default function UserStats({ compact = false }: { compact?: boolean }) {
     const iv = setInterval(fetchStats, REFRESH_MS);
     return () => { cancelled = true; clearInterval(iv); };
   }, []);
+
+  // Wenn RPC fehlt oder Fehler → Komponente komplett ausblenden
+  if (failed) return null;
 
   if (!stats) {
     return (

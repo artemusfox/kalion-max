@@ -11,16 +11,33 @@ export default function UserGeoMap({ compact = false }: { compact?: boolean }) {
   const { lang } = useLanguage();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
     let cancelled = false;
     (async () => {
-      const { data } = await supabase.rpc("get_country_stats");
-      if (!cancelled) setRows((data as any) || []);
+      const { data, error } = await supabase.rpc("get_country_stats");
+      if (cancelled) return;
+      if (error) { setFailed(true); return; }
+      setRows((data as any) || []);
     })();
     return () => { cancelled = true; };
   }, []);
+
+  if (failed) {
+    return (
+      <div style={{
+        padding: 16, textAlign: "center", color: "var(--text-muted)",
+        background: "var(--bg-elevated)", borderRadius: 10, border: "1px dashed var(--border)",
+        fontSize: 11, lineHeight: 1.5,
+      }}>
+        {lang === "en"
+          ? "Geo-stats not yet available — admin needs to run geo_migration.sql"
+          : "Geo-Statistik noch nicht aktiv — Admin muss geo_migration.sql ausführen"}
+      </div>
+    );
+  }
 
   if (!rows) {
     return <div style={{ textAlign: "center", padding: 30 }}><div className="spinner" style={{ margin: "0 auto" }} /></div>;

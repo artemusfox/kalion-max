@@ -32,17 +32,22 @@ export default function ActivityFeed({ compact = false }: { compact?: boolean })
   const { t, lang } = useLanguage();
   const [stats, setStats] = useState<Stats | null>(null);
   const [feed, setFeed] = useState<Event[] | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       const supabase = createClient();
-      const [{ data: s }, { data: f }] = await Promise.all([
+      const [statsRes, feedRes] = await Promise.all([
         supabase.rpc("get_global_activity_stats"),
         supabase.rpc("get_global_activity_feed", { p_limit: compact ? 5 : 10 }),
       ]);
       if (cancelled) return;
-      const row = Array.isArray(s) && s[0] ? s[0] : null;
+      if (statsRes.error || feedRes.error) {
+        setFailed(true);
+        return;
+      }
+      const row = Array.isArray(statsRes.data) && statsRes.data[0] ? statsRes.data[0] : null;
       if (row) {
         setStats({
           workouts_today: Number(row.workouts_today) || 0,
@@ -52,13 +57,30 @@ export default function ActivityFeed({ compact = false }: { compact?: boolean })
           total_volume_today: Number(row.total_volume_today) || 0,
           online_now: Number(row.online_now) || 0,
         });
+      } else {
+        setFailed(true);
+        return;
       }
-      setFeed((f as Event[]) || []);
+      setFeed((feedRes.data as Event[]) || []);
     }
     load();
     const iv = setInterval(load, REFRESH_MS);
     return () => { cancelled = true; clearInterval(iv); };
   }, [compact]);
+
+  if (failed) {
+    return (
+      <div style={{
+        padding: 16, textAlign: "center", color: "var(--text-muted)",
+        background: "var(--bg-elevated)", borderRadius: 10, border: "1px dashed var(--border)",
+        fontSize: 11, lineHeight: 1.5,
+      }}>
+        {lang === "en"
+          ? "Activity feed not yet available — admin needs to run activity_migration.sql"
+          : "Aktivitäts-Feed noch nicht aktiv — Admin muss activity_migration.sql ausführen"}
+      </div>
+    );
+  }
 
   if (!stats || !feed) {
     return <div style={{ padding: 30, textAlign: "center" }}><div className="spinner" style={{ margin: "0 auto" }} /></div>;
