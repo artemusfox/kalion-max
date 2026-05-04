@@ -36,6 +36,7 @@ export default async function DashboardPage() {
       bestStreak={profile?.best_streak || 0}
       recentWorkouts={recentWorkouts || []}
       activePlan={activePlan}
+      profileSettings={profile?.settings}
     />
   );
 }

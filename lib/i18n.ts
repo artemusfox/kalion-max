@@ -417,6 +417,43 @@ export const T = {
   "nut.meal.lunch":      { de: "Mittag",            en: "Lunch" },
   "nut.meal.dinner":     { de: "Abend",             en: "Dinner" },
   "nut.meal.snack":      { de: "Snack",             en: "Snack" },
+
+  // ── HABITS ──
+  "habits.title":          { de: "✅ Tägliche Habits",       en: "✅ Daily Habits" },
+  "habits.desc":           { de: "Was machst du jeden Tag — kleine Gewohnheiten, große Wirkung.", en: "What you do every day — small habits, big impact." },
+  "habits.empty":          { de: "Noch keine Habits — leg los!", en: "No habits yet — let's go!" },
+  "habits.add":            { de: "+ Habit hinzufügen",       en: "+ Add habit" },
+  "habits.name.ph":        { de: "z.B. 3 Liter Wasser",      en: "e.g. 3 liters of water" },
+  "habits.streak":         { de: "Streak",                   en: "Streak" },
+  "habits.today":          { de: "Heute",                    en: "Today" },
+  "habits.manage":         { de: "Verwalten",                en: "Manage" },
+  "habits.done":           { de: "Fertig",                   en: "Done" },
+  "habits.completed":      { de: "abgehakt",                 en: "completed" },
+  "habits.delete.confirm": { de: "Habit wirklich löschen?",  en: "Really delete this habit?" },
+
+  // ── ROUTINE ──
+  "routine.morning":       { de: "🌅 Morgen-Routine",        en: "🌅 Morning Routine" },
+  "routine.evening":       { de: "🌙 Abend-Routine",         en: "🌙 Evening Routine" },
+  "routine.morning.desc":  { de: "Starte den Tag richtig.",  en: "Start the day right." },
+  "routine.evening.desc":  { de: "Beende den Tag bewusst.",  en: "End the day intentionally." },
+  "routine.empty.morning": { de: "Keine Morgen-Items — was ist dein Morgen-Ritual?", en: "No morning items — what's your morning ritual?" },
+  "routine.empty.evening": { de: "Keine Abend-Items — was hilft dir runterzukommen?", en: "No evening items — what helps you wind down?" },
+  "routine.add":           { de: "+ Hinzufügen",             en: "+ Add" },
+  "routine.item.ph":       { de: "z.B. Stretching, Wasser, Notes…", en: "e.g. stretching, water, notes…" },
+  "routine.complete":      { de: "Komplett!",                en: "Complete!" },
+
+  // ── DASHBOARD WIDGET TOGGLES ──
+  "widgets.title":  { de: "🧩 Dashboard-Module",        en: "🧩 Dashboard Modules" },
+  "widgets.desc":   { de: "Welche Karten sollen auf deinem Dashboard erscheinen?", en: "Which cards should appear on your dashboard?" },
+  "widget.hero":           { de: "Begrüßung + Quote",     en: "Greeting + Quote" },
+  "widget.activity":       { de: "Live-Aktivität",        en: "Live Activity" },
+  "widget.active_plan":    { de: "Aktiver Plan",          en: "Active Plan" },
+  "widget.routine_morning":{ de: "Morgen-Routine",        en: "Morning Routine" },
+  "widget.habits":         { de: "Tägliche Habits",       en: "Daily Habits" },
+  "widget.routine_evening":{ de: "Abend-Routine",         en: "Evening Routine" },
+  "widget.level_stats":    { de: "Level + Stats",         en: "Level + Stats" },
+  "widget.recent":         { de: "Letzte Workouts",       en: "Recent Workouts" },
+  "widget.features":       { de: "Feature-Links",         en: "Feature Links" },
 } satisfies Dict;
 
 export type TKey = keyof typeof T;

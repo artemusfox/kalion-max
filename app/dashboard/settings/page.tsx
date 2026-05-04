@@ -8,6 +8,7 @@ import { useTheme, THEMES, SURFACES } from "@/components/ThemeProvider";
 import { isVoiceEnabled, setVoiceEnabled, isVoiceSupported, speak } from "@/lib/voice";
 import MfaSettings from "@/components/MfaSettings";
 import UnitsSettings from "@/components/UnitsSettings";
+import WidgetSettings from "@/components/WidgetSettings";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -276,6 +277,14 @@ function SettingsInner() {
         >
           {voiceOn ? "🔊 Sprache an — antippen zum Deaktivieren" : "🔇 Sprache aus — antippen zum Aktivieren"}
         </button>
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{tr("widgets.title")}</div>
+        <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 14, lineHeight: 1.5 }}>
+          {tr("widgets.desc")}
+        </div>
+        <WidgetSettings />
       </div>
 
       <div className="card">
