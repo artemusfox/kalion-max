@@ -5,6 +5,7 @@ import { SPORT_ICONS, SPORT_COLORS, type Sport } from "@/lib/types";
 import { sportLabel } from "@/lib/labels";
 import { useLanguage } from "@/components/LanguageProvider";
 import StreakFlame from "@/components/StreakFlame";
+import ActivityFeed from "@/components/ActivityFeed";
 
 type Props = {
   displayName: string;
@@ -100,6 +101,18 @@ export default function DashboardContent(p: Props) {
           <Link href="/dashboard/plans" className="btn btn-primary">{t("dash.choose.plan")}</Link>
         </div>
       )}
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
+          🌍 {lang === "en" ? "Live activity" : "Live-Aktivität"}
+        </div>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14 }}>
+          {lang === "en"
+            ? "What's happening right now in the community"
+            : "Was gerade in der Community passiert"}
+        </div>
+        <ActivityFeed compact />
+      </div>
 
       <div className="card">
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>

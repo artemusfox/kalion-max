@@ -6,6 +6,7 @@ import LegalFooter from "@/components/LegalFooter";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import UserStats from "@/components/UserStats";
 import UserGeoMap from "@/components/UserGeoMap";
+import ActivityFeed from "@/components/ActivityFeed";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function HomeHero() {
@@ -88,8 +89,19 @@ export default function HomeHero() {
           ))}
         </div>
 
-        {/* Geo-Heatmap Teaser */}
+        {/* Live Community Activity */}
         <div className="card" style={{ marginTop: 32, textAlign: "left" }}>
+          <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>
+            🌍 {lang === "en" ? "Live community activity" : "Live-Community-Aktivität"}
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14, textAlign: "center" }}>
+            {lang === "en" ? "Real users, right now" : "Echte User, in Echtzeit"}
+          </div>
+          <ActivityFeed compact />
+        </div>
+
+        {/* Geo-Heatmap Teaser */}
+        <div className="card" style={{ textAlign: "left" }}>
           <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>
             🌍 {t("home.sports.heading") /* placeholder until i18n key */}
           </div>
