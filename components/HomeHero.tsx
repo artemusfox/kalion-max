@@ -10,7 +10,7 @@ import ActivityFeed from "@/components/ActivityFeed";
 import { useLanguage } from "@/components/LanguageProvider";
 
 export default function HomeHero() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const sports: { icon: string; key: "sport.strength" | "sport.calisthenics" | "sport.cardio" | "sport.hiit" | "sport.mobility"; color: string }[] = [
     { icon: "🏋️", key: "sport.strength",     color: "#FF5A6B" },
