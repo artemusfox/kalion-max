@@ -11,6 +11,9 @@ import UnitsSettings from "@/components/UnitsSettings";
 import WidgetSettings from "@/components/WidgetSettings";
 import UserAvatar from "@/components/UserAvatar";
 import AvatarPicker from "@/components/AvatarPicker";
+import SubscriptionCard from "@/components/SubscriptionCard";
+import PaywallModal from "@/components/PaywallModal";
+import { isPro } from "@/lib/premium";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -47,6 +50,8 @@ function SettingsInner() {
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallFeature, setPaywallFeature] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -240,24 +245,43 @@ function SettingsInner() {
         </div>
 
         {([
-          { tone: "dark"   as const, label: tr("settings.surface.dark") },
-          { tone: "medium" as const, label: tr("settings.surface.medium") },
-          { tone: "light"  as const, label: tr("settings.surface.light") },
+          { tone: "dark"   as const, label: tr("settings.surface.dark"), gated: false },
+          { tone: "medium" as const, label: tr("settings.surface.medium"), gated: true },
+          { tone: "light"  as const, label: tr("settings.surface.light"), gated: true },
         ]).map((group, gi, arr) => {
           const items = SURFACES.filter((s) => s.tone === group.tone);
+          const proRequired = group.gated && !isPro(profile);
           return (
             <div key={group.tone} style={{ marginBottom: gi < arr.length - 1 ? 18 : 0 }}>
               <div style={{
                 fontSize: 10, color: "var(--text-muted)", fontWeight: 800,
                 letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8,
-              }}>{group.label}</div>
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                <span>{group.label}</span>
+                {proRequired && (
+                  <span style={{
+                    fontSize: 9, padding: "2px 6px",
+                    background: "var(--accent)", color: "#0a0a10",
+                    borderRadius: 4, letterSpacing: 0.5,
+                  }}>💎 PRO</span>
+                )}
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
                 {items.map((s) => {
                   const active = surface === s.id;
                   return (
                     <button
                       key={s.id}
-                      onClick={() => { setSurface(s.id); toast(`Hintergrund: ${s.label}`, { type: "success", icon: s.tone === "light" ? "☀️" : s.tone === "medium" ? "🌗" : "🌑" }); }}
+                      onClick={() => {
+                        if (proRequired) {
+                          setPaywallFeature(lang === "en" ? "Light & Medium themes" : "Helle & mittlere Themes");
+                          setShowPaywall(true);
+                          return;
+                        }
+                        setSurface(s.id);
+                        toast(`Hintergrund: ${s.label}`, { type: "success", icon: s.tone === "light" ? "☀️" : s.tone === "medium" ? "🌗" : "🌑" });
+                      }}
                       style={{
                         padding: 12,
                         borderRadius: 12,
@@ -270,6 +294,8 @@ function SettingsInner() {
                         display: "flex",
                         alignItems: "center",
                         gap: 10,
+                        opacity: proRequired ? 0.65 : 1,
+                        position: "relative",
                       }}
                     >
                       <div style={{
@@ -311,6 +337,13 @@ function SettingsInner() {
         >
           {voiceOn ? "🔊 Sprache an — antippen zum Deaktivieren" : "🔇 Sprache aus — antippen zum Aktivieren"}
         </button>
+      </div>
+
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 14 }}>
+          💎 {lang === "en" ? "Subscription" : "Abonnement"}
+        </div>
+        <SubscriptionCard />
       </div>
 
       <div className="card">
@@ -358,6 +391,12 @@ function SettingsInner() {
           fontFamily: "inherit", fontSize: 13, fontWeight: 800, width: "100%",
         }}>{tr("settings.delete")}</button>
       </div>
+
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature={paywallFeature}
+      />
     </div>
   );
 }

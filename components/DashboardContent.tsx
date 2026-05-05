@@ -11,7 +11,9 @@ import ActivityFeed from "@/components/ActivityFeed";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
 import UserAvatar from "@/components/UserAvatar";
+import TrialBanner from "@/components/TrialBanner";
 import { readWidgetSettings, readWidgetOrder, ALL_WIDGETS, type WidgetId } from "@/lib/widgets";
+import type { ProfileSubscription } from "@/lib/premium";
 
 type Props = {
   displayName: string;
@@ -29,6 +31,7 @@ type Props = {
   activePlan: any;
   profileSettings: any;
   avatarUrl?: string | null;
+  subscription?: ProfileSubscription | null;
 };
 
 const QUOTES_DE = [
@@ -276,6 +279,8 @@ export default function DashboardContent(p: Props) {
 
   return (
     <div>
+      <TrialBanner profile={p.subscription || null} />
+
       {/* Edit-Toolbar */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "center",

@@ -1,13 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useLanguage } from "@/components/LanguageProvider";
 import { AVATAR_PRESETS } from "@/lib/avatars";
 import { deleteOldAvatar } from "@/lib/avatar-storage";
+import { isPro } from "@/lib/premium";
 import UserAvatar from "@/components/UserAvatar";
 import AvatarCropper from "@/components/AvatarCropper";
+import PaywallModal from "@/components/PaywallModal";
 
 type Props = {
   currentUrl?: string | null;
@@ -22,7 +24,20 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
   const [busy, setBusy] = useState(false);
   const [tab, setTab] = useState<"preset" | "upload">("preset");
   const [cropFile, setCropFile] = useState<File | null>(null);
+  const [proStatus, setProStatus] = useState<boolean | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // Pro-Status laden
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from("profiles")
+        .select("subscription_tier, subscription_status, subscription_period_end")
+        .single();
+      setProStatus(isPro(data));
+    })();
+  }, []);
 
   async function setPreset(presetId: string) {
     setBusy(true);
@@ -121,7 +136,7 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
             🎨 {lang === "en" ? "Presets" : "Vorlagen"}
           </button>
           <button onClick={() => setTab("upload")} style={tabBtn(tab === "upload")}>
-            📸 {lang === "en" ? "Photo" : "Foto"}
+            📸 {lang === "en" ? "Photo" : "Foto"} {!proStatus && "💎"}
           </button>
         </div>
 
@@ -166,35 +181,58 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
         )}
 
         {tab === "upload" && (
-          <div>
+          proStatus === false ? (
+            // FREE → Premium-Gate
             <div style={{
-              display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
-              padding: 20, background: "var(--bg-elevated)",
-              border: "1px dashed var(--border-strong)", borderRadius: 14,
-              textAlign: "center",
+              padding: 24, textAlign: "center",
+              background: "linear-gradient(135deg, var(--accent-tint), var(--bg-elevated))",
+              border: "1px solid var(--accent-border)", borderRadius: 14,
             }}>
-              <UserAvatar avatarUrl={currentUrl} displayName={displayName} size={80} />
-              <input
-                ref={fileInput}
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => { if (e.target.files?.[0]) pickFile(e.target.files[0]); }}
-              />
-              <button
-                onClick={() => fileInput.current?.click()}
-                disabled={busy}
-                className="btn btn-primary btn-block"
-              >
-                {busy ? <div className="spinner" /> : (lang === "en" ? "📤 Choose photo" : "📤 Foto wählen")}
-              </button>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>💎</div>
+              <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>
+                {lang === "en" ? "Pro feature" : "Pro-Feature"}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 16, lineHeight: 1.5 }}>
                 {lang === "en"
-                  ? "JPG or PNG, max 10 MB. You can crop after selecting."
-                  : "JPG oder PNG, max 10 MB. Zuschneiden geht danach."}
+                  ? "Upload your own photo as avatar with the Pro plan. Free users have 20 fitness presets."
+                  : "Eigenes Foto als Avatar nur mit Pro. Free-User haben 20 Fitness-Vorlagen."}
+              </div>
+              <button onClick={() => setShowPaywall(true)} className="btn btn-primary btn-block">
+                {lang === "en" ? "Upgrade to Pro →" : "Auf Pro upgraden →"}
+              </button>
+              <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} feature="Avatar Upload" />
+            </div>
+          ) : (
+            <div>
+              <div style={{
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 14,
+                padding: 20, background: "var(--bg-elevated)",
+                border: "1px dashed var(--border-strong)", borderRadius: 14,
+                textAlign: "center",
+              }}>
+                <UserAvatar avatarUrl={currentUrl} displayName={displayName} size={80} />
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) => { if (e.target.files?.[0]) pickFile(e.target.files[0]); }}
+                />
+                <button
+                  onClick={() => fileInput.current?.click()}
+                  disabled={busy}
+                  className="btn btn-primary btn-block"
+                >
+                  {busy ? <div className="spinner" /> : (lang === "en" ? "📤 Choose photo" : "📤 Foto wählen")}
+                </button>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                  {lang === "en"
+                    ? "JPG or PNG, max 10 MB. You can crop after selecting."
+                    : "JPG oder PNG, max 10 MB. Zuschneiden geht danach."}
+                </div>
               </div>
             </div>
-          </div>
+          )
         )}
 
         <button

@@ -38,6 +38,12 @@ export default async function DashboardPage() {
       activePlan={activePlan}
       profileSettings={profile?.settings}
       avatarUrl={profile?.avatar_url}
+      subscription={profile ? {
+        subscription_tier: profile.subscription_tier,
+        subscription_status: profile.subscription_status,
+        subscription_period_end: profile.subscription_period_end,
+        trial_ends_at: profile.trial_ends_at,
+      } : null}
     />
   );
 }
