@@ -29,7 +29,7 @@ function SettingsInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { theme, setTheme, surface, setSurface } = useTheme();
+  const { theme, setTheme, surface, setSurface, customAccent, setCustomAccent } = useTheme();
   const { t: tr, lang } = useLanguage();
   const mfaRequired = searchParams.get("mfa-required") === "1";
   const [voiceOn, setVoiceOn] = useState(false);
@@ -235,6 +235,62 @@ function SettingsInner() {
               </button>
             );
           })}
+        </div>
+
+        {/* Custom-Accent (Pro-Feature) */}
+        <div style={{
+          marginTop: 14, padding: 12,
+          background: customAccent ? "var(--accent-tint)" : "var(--bg-elevated)",
+          border: `1px solid ${customAccent ? "var(--accent-border)" : "var(--border)"}`,
+          borderRadius: 10,
+          opacity: !isPro(profile) ? 0.85 : 1,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: customAccent ? 10 : 0 }}>
+            <div style={{ fontSize: 22 }}>🎨</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", gap: 6 }}>
+                {lang === "en" ? "Custom accent color" : "Eigene Akzent-Farbe"}
+                {!isPro(profile) && (
+                  <span style={{
+                    fontSize: 9, padding: "2px 6px",
+                    background: "var(--accent)", color: "#0a0a10",
+                    borderRadius: 4, letterSpacing: 0.5,
+                  }}>💎 PRO</span>
+                )}
+              </div>
+              <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>
+                {customAccent
+                  ? (lang === "en" ? `Active: ${customAccent}` : `Aktiv: ${customAccent}`)
+                  : (lang === "en" ? "Override theme accent with any hex" : "Theme-Akzent mit beliebigem Hex überschreiben")}
+              </div>
+            </div>
+            {!isPro(profile) ? (
+              <button
+                onClick={() => { setPaywallFeature(lang === "en" ? "Custom accent color" : "Eigene Akzent-Farbe"); setShowPaywall(true); }}
+                className="btn btn-ghost"
+                style={{ padding: "5px 10px", fontSize: 11 }}
+              >→</button>
+            ) : (
+              <>
+                <input
+                  type="color"
+                  value={customAccent || "#22D3EE"}
+                  onChange={(e) => setCustomAccent(e.target.value)}
+                  style={{
+                    width: 38, height: 38, padding: 0, border: "1px solid var(--border)",
+                    borderRadius: 8, cursor: "pointer", background: "transparent",
+                  }}
+                />
+                {customAccent && (
+                  <button
+                    onClick={() => setCustomAccent(null)}
+                    className="btn btn-ghost"
+                    style={{ padding: "5px 10px", fontSize: 11 }}
+                  >×</button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

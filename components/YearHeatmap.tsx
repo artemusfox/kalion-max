@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
+import { useIsPro } from "@/lib/use-pro";
+import { FREE_LIMITS } from "@/lib/premium";
+import { useLanguage } from "@/components/LanguageProvider";
+import PaywallModal from "@/components/PaywallModal";
 
 type DayCell = {
   date: string;          // YYYY-MM-DD
@@ -14,16 +18,21 @@ const MONTHS = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", 
 const WEEKDAYS = ["Mo", "", "Mi", "", "Fr", "", ""]; // sparse → nur jeden 2. Tag labeln
 
 export default function YearHeatmap() {
+  const isPro = useIsPro();
+  const { lang } = useLanguage();
   const [days, setDays] = useState<Record<string, DayCell>>({});
   const [loading, setLoading] = useState(true);
   const [hover, setHover] = useState<DayCell | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [isPro]);
 
   async function load() {
     setLoading(true);
     const supabase = createClient();
-    const since = new Date(Date.now() - 365 * 86400000).toISOString();
+    // Free-User: 30 Tage Cap. Pro: volle 365 Tage
+    const dayWindow = isPro === false ? FREE_LIMITS.workoutHistoryDays : 365;
+    const since = new Date(Date.now() - dayWindow * 86400000).toISOString();
     const { data } = await supabase
       .from("workouts")
       .select("started_at, total_volume, total_reps")
@@ -110,11 +119,30 @@ export default function YearHeatmap() {
 
   return (
     <div>
+      {isPro === false && (
+        <div
+          onClick={() => setShowPaywall(true)}
+          style={{
+            padding: "8px 12px", marginBottom: 12,
+            background: "var(--accent-tint)", border: "1px solid var(--accent-border)",
+            borderRadius: 8, fontSize: 11, color: "var(--accent)",
+            cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+          }}
+        >
+          <span>💎</span>
+          <span style={{ flex: 1, fontWeight: 700 }}>
+            {lang === "en"
+              ? `Showing last ${FREE_LIMITS.workoutHistoryDays} days · upgrade to Pro for full year →`
+              : `Letzte ${FREE_LIMITS.workoutHistoryDays} Tage · Pro für volles Jahr →`}
+          </span>
+        </div>
+      )}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 14 }}>
         <Stat icon="📅" label="Aktive Tage" value={activeDays} />
         <Stat icon="💪" label="Workouts" value={totalWorkouts} />
         <Stat icon="🏋️" label="Volumen total" value={`${Math.round(totalVolume / 1000)}t`} />
       </div>
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} feature={lang === "en" ? "Full year history" : "Volle Jahres-Historie"} />
 
       <div style={{ overflowX: "auto", paddingBottom: 4 }}>
         <svg viewBox={`0 0 ${W} ${H}`} style={{ minWidth: 700, width: "100%", height: "auto" }}>

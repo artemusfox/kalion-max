@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { EX_BY_ID } from "@/lib/exercises";
+import { useIsPro } from "@/lib/use-pro";
+import { FREE_LIMITS } from "@/lib/premium";
+import { useLanguage } from "@/components/LanguageProvider";
+import PaywallModal from "@/components/PaywallModal";
 
 type Point = {
   date: string;
@@ -12,20 +16,28 @@ type Point = {
 };
 
 export default function ExerciseChart() {
+  const isPro = useIsPro();
+  const { lang } = useLanguage();
   const [exerciseStats, setExerciseStats] = useState<Record<string, { name: string; points: Point[] }>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [metric, setMetric] = useState<"weight" | "volume">("weight");
+  const [showPaywall, setShowPaywall] = useState(false);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [isPro]);
 
   async function load() {
     setLoading(true);
     const supabase = createClient();
-    const { data } = await supabase
+    let query = supabase
       .from("workouts")
       .select("started_at, exercises_data")
       .order("started_at", { ascending: true });
+    if (isPro === false) {
+      const since = new Date(Date.now() - FREE_LIMITS.workoutHistoryDays * 86400000).toISOString();
+      query = query.gte("started_at", since);
+    }
+    const { data } = await query;
 
     const stats: Record<string, { name: string; points: Point[] }> = {};
     for (const w of (data || []) as any[]) {
@@ -89,6 +101,22 @@ export default function ExerciseChart() {
 
   return (
     <div>
+      {isPro === false && (
+        <div
+          onClick={() => setShowPaywall(true)}
+          style={{
+            padding: "8px 12px", marginBottom: 12,
+            background: "var(--accent-tint)", border: "1px solid var(--accent-border)",
+            borderRadius: 8, fontSize: 11, color: "var(--accent)",
+            cursor: "pointer", fontWeight: 700,
+          }}
+        >
+          💎 {lang === "en"
+            ? `Showing last ${FREE_LIMITS.workoutHistoryDays} days · upgrade to Pro for full history →`
+            : `Letzte ${FREE_LIMITS.workoutHistoryDays} Tage · Pro für volle Historie →`}
+        </div>
+      )}
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} feature={lang === "en" ? "Full chart history" : "Volle Chart-Historie"} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
         <select
           value={selected ?? ""}

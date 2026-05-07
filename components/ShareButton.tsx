@@ -8,6 +8,7 @@ import {
   whatsappUrl, downloadImage, twitterUrl, telegramUrl,
 } from "@/lib/share";
 import { renderWorkoutCard, type WorkoutCard } from "@/lib/share-card";
+import { useIsPro } from "@/lib/use-pro";
 
 type Props = {
   card: WorkoutCard;
@@ -19,6 +20,7 @@ type Props = {
 export default function ShareButton({ card, shareUrl, buttonLabel, buttonStyle }: Props) {
   const { toast } = useToast();
   const { lang } = useLanguage();
+  const isPro = useIsPro();
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
@@ -27,7 +29,7 @@ export default function ShareButton({ card, shareUrl, buttonLabel, buttonStyle }
   async function preview() {
     setBusy(true);
     try {
-      const blob = await renderWorkoutCard(card);
+      const blob = await renderWorkoutCard({ ...card, watermark: !isPro });
       setImageBlob(blob);
       if (imageUrl) URL.revokeObjectURL(imageUrl);
       setImageUrl(URL.createObjectURL(blob));

@@ -11,6 +11,9 @@ import { EmptyState, SkeletonList } from "@/components/UI";
 import { useLanguage } from "@/components/LanguageProvider";
 import { sportLabel } from "@/lib/labels";
 import { templateName, templateDesc } from "@/lib/data-translations";
+import { useIsPro } from "@/lib/use-pro";
+import { FREE_LIMITS } from "@/lib/premium";
+import PaywallModal from "@/components/PaywallModal";
 
 export default function PlansPage() {
   const router = useRouter();
@@ -21,6 +24,9 @@ export default function PlansPage() {
   const [userPlans, setUserPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePlanId, setActivePlanId] = useState<string | null>(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const isPro = useIsPro();
+  const planLimitReached = !isPro && userPlans.length >= FREE_LIMITS.maxPlans;
 
   useEffect(() => { load(); }, []);
 
@@ -39,6 +45,10 @@ export default function PlansPage() {
   }
 
   async function cloneTemplate(template: Plan) {
+    if (planLimitReached) {
+      setShowPaywall(true);
+      return;
+    }
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -121,9 +131,32 @@ export default function PlansPage() {
         ) : (
           <>
             <div style={{ marginBottom: 16 }}>
-              <Link href="/dashboard/plans/new" className="btn btn-primary btn-block">
-                {tr("plans.new")}
-              </Link>
+              {planLimitReached ? (
+                <button
+                  onClick={() => setShowPaywall(true)}
+                  className="btn btn-primary btn-block"
+                  style={{
+                    background: "linear-gradient(135deg, var(--accent), var(--accent-2))",
+                    border: "none",
+                  }}
+                >
+                  💎 {lang === "en"
+                    ? `Pro: ${FREE_LIMITS.maxPlans} plans max on Free — upgrade for unlimited`
+                    : `Pro: Max ${FREE_LIMITS.maxPlans} Pläne auf Free — upgraden für unlimited`}
+                </button>
+              ) : (
+                <Link href="/dashboard/plans/new" className="btn btn-primary btn-block">
+                  {tr("plans.new")}
+                  {!isPro && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, marginLeft: 8,
+                      opacity: 0.7,
+                    }}>
+                      ({userPlans.length} / {FREE_LIMITS.maxPlans})
+                    </span>
+                  )}
+                </Link>
+              )}
             </div>
             <div className="stagger">
             {userPlans.filter((p) => sportFilter === "all" || p.sport === sportFilter).map((p) => {
@@ -201,14 +234,24 @@ export default function PlansPage() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => cloneTemplate(t)} className="btn btn-primary btn-block" style={{ marginTop: 8 }}>
-                + {tr("plans.use.template")}
+              <button
+                onClick={() => cloneTemplate(t)}
+                className="btn btn-primary btn-block"
+                style={{ marginTop: 8 }}
+              >
+                {planLimitReached ? "💎 " : "+ "}{tr("plans.use.template")}
               </button>
             </div>
           );
         })}
         </div>
       )}
+
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature={lang === "en" ? "Unlimited plans" : "Unbegrenzte Pläne"}
+      />
     </div>
   );
 }

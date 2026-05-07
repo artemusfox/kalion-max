@@ -4,6 +4,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import PaywallModal from "@/components/PaywallModal";
+import { useIsPro } from "@/lib/use-pro";
+import { FREE_LIMITS } from "@/lib/premium";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const MEASUREMENTS = [
   { key: "weight",  label: "Gewicht",      unit: "kg", icon: "⚖️", color: "#2DD4BF" },
@@ -23,6 +27,10 @@ export default function BodyPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [editVal, setEditVal] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const isPro = useIsPro();
+  const { lang } = useLanguage();
+  const photoLimitReached = !isPro && photos.length >= FREE_LIMITS.maxPhotos;
 
   useEffect(() => { load(); }, []);
 
@@ -69,6 +77,10 @@ export default function BodyPage() {
   }
 
   async function uploadPhoto(file: File) {
+    if (photoLimitReached) {
+      setShowPaywall(true);
+      return;
+    }
     setUploading(true);
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -231,20 +243,48 @@ export default function BodyPage() {
             <div style={{ fontSize: 12, color: "var(--text-dim)", marginBottom: 16, lineHeight: 1.5 }}>
               Dokumentiere deinen Fortschritt — nur du selbst siehst diese Bilder.
             </div>
-            <label style={{
-              display: "block", padding: 20, border: "2px dashed var(--border-active)",
-              borderRadius: 14, background: "var(--bg-elevated)", textAlign: "center",
-              cursor: "pointer", marginBottom: 20,
-            }}>
-              <input type="file" accept="image/*" style={{ display: "none" }}
-                onChange={(e) => { if (e.target.files?.[0]) uploadPhoto(e.target.files[0]); }}
-                disabled={uploading} />
-              <div style={{ fontSize: 36, marginBottom: 8 }}>{uploading ? "⏳" : "📷"}</div>
-              <div style={{ fontWeight: 700, marginBottom: 4 }}>
-                {uploading ? "Wird hochgeladen..." : "Foto hinzufügen"}
+            {photoLimitReached ? (
+              <div
+                onClick={() => setShowPaywall(true)}
+                style={{
+                  padding: 20, borderRadius: 14, marginBottom: 20,
+                  background: "linear-gradient(135deg, var(--accent-tint), var(--bg-elevated))",
+                  border: "1px solid var(--accent-border)", textAlign: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontSize: 36, marginBottom: 8 }}>💎</div>
+                <div style={{ fontWeight: 800, marginBottom: 4, color: "var(--accent)" }}>
+                  {lang === "en"
+                    ? `Photo limit reached (${FREE_LIMITS.maxPhotos} max on Free)`
+                    : `Foto-Limit erreicht (${FREE_LIMITS.maxPhotos} max auf Free)`}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-dim)" }}>
+                  {lang === "en" ? "Upgrade to Pro for unlimited photos" : "Auf Pro upgraden für unbegrenzte Fotos"}
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>JPG, PNG — privat gespeichert</div>
-            </label>
+            ) : (
+              <label style={{
+                display: "block", padding: 20, border: "2px dashed var(--border-active)",
+                borderRadius: 14, background: "var(--bg-elevated)", textAlign: "center",
+                cursor: "pointer", marginBottom: 20,
+              }}>
+                <input type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={(e) => { if (e.target.files?.[0]) uploadPhoto(e.target.files[0]); }}
+                  disabled={uploading} />
+                <div style={{ fontSize: 36, marginBottom: 8 }}>{uploading ? "⏳" : "📷"}</div>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>
+                  {uploading
+                    ? (lang === "en" ? "Uploading…" : "Wird hochgeladen…")
+                    : (lang === "en" ? "Add photo" : "Foto hinzufügen")}
+                </div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {!isPro
+                    ? `JPG, PNG · ${photos.length} / ${FREE_LIMITS.maxPhotos}`
+                    : "JPG, PNG · privat gespeichert"}
+                </div>
+              </label>
+            )}
 
             {photos.length === 0 ? (
               <div style={{ textAlign: "center", padding: 30, color: "var(--text-muted)" }}>
@@ -288,6 +328,12 @@ export default function BodyPage() {
           </div>
         </>
       )}
+
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        feature={lang === "en" ? "Unlimited photos" : "Unbegrenzte Fotos"}
+      />
     </div>
   );
 }

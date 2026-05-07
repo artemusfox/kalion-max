@@ -44,10 +44,13 @@ export const SURFACES: { id: Surface; label: string; preview: string; tone: Tone
 type Ctx = {
   theme: Theme; setTheme: (t: Theme) => void;
   surface: Surface; setSurface: (s: Surface) => void;
+  customAccent: string | null;
+  setCustomAccent: (hex: string | null) => void;
 };
 const ThemeCtx = createContext<Ctx>({
   theme: "cyan", setTheme: () => {},
   surface: "slate", setSurface: () => {},
+  customAccent: null, setCustomAccent: () => {},
 });
 
 export function useTheme() {
@@ -57,6 +60,22 @@ export function useTheme() {
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("cyan");
   const [surface, setSurfaceState] = useState<Surface>("slate");
+  const [customAccent, setCustomAccentState] = useState<string | null>(null);
+
+  function applyCustomAccent(hex: string | null) {
+    const root = document.documentElement;
+    if (hex && /^#[0-9a-fA-F]{6}$/.test(hex)) {
+      root.style.setProperty("--accent", hex);
+      root.style.setProperty("--accent-glow", hex + "38");
+      root.style.setProperty("--accent-tint",  hex + "1A");
+      root.style.setProperty("--accent-border", hex + "59");
+    } else {
+      root.style.removeProperty("--accent");
+      root.style.removeProperty("--accent-glow");
+      root.style.removeProperty("--accent-tint");
+      root.style.removeProperty("--accent-border");
+    }
+  }
 
   // Initial Werte aus localStorage lesen
   useEffect(() => {
@@ -69,6 +88,11 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     if (s && SURFACES.some((x) => x.id === s)) {
       setSurfaceState(s);
       document.documentElement.setAttribute("data-bg", s);
+    }
+    const ca = localStorage.getItem("kalion-accent");
+    if (ca && /^#[0-9a-fA-F]{6}$/.test(ca)) {
+      setCustomAccentState(ca);
+      applyCustomAccent(ca);
     }
   }, []);
 
@@ -84,8 +108,15 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
     document.documentElement.setAttribute("data-bg", s);
   }
 
+  function setCustomAccent(hex: string | null) {
+    setCustomAccentState(hex);
+    if (hex) localStorage.setItem("kalion-accent", hex);
+    else localStorage.removeItem("kalion-accent");
+    applyCustomAccent(hex);
+  }
+
   return (
-    <ThemeCtx.Provider value={{ theme, setTheme, surface, setSurface }}>
+    <ThemeCtx.Provider value={{ theme, setTheme, surface, setSurface, customAccent, setCustomAccent }}>
       {children}
     </ThemeCtx.Provider>
   );

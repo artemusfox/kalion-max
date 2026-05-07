@@ -11,6 +11,7 @@ export type WorkoutCard = {
   prList?: string[];      // optional: "Bench 110kg", "Squat 140kg"
   accentColor?: string;   // default cyan
   username?: string;
+  watermark?: boolean;    // false = Pro, true = Free (kalion-max.app footer)
 };
 
 const W = 1080;
@@ -126,10 +127,13 @@ export async function renderWorkoutCard(card: WorkoutCard): Promise<Blob> {
     ctx.textAlign = "left";
     ctx.fillText(`@${card.username}`, PAD, H - 160);
   }
-  ctx.fillStyle = "rgba(255,255,255,0.4)";
-  ctx.font = "500 32px 'JetBrains Mono', monospace";
-  ctx.textAlign = "right";
-  ctx.fillText("kalion-max.app", W - PAD, H - 160);
+  // Watermark nur bei Free-Usern (default true für Sicherheit)
+  if (card.watermark !== false) {
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.font = "500 32px 'JetBrains Mono', monospace";
+    ctx.textAlign = "right";
+    ctx.fillText("kalion-max.app", W - PAD, H - 160);
+  }
 
   // Bottom-Akzent-Bar
   const barH = 16;
