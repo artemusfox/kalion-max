@@ -10,6 +10,7 @@ import StreakFlame from "@/components/StreakFlame";
 import ActivityFeed from "@/components/ActivityFeed";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
+import DailyPlanner from "@/components/DailyPlanner";
 import UserAvatar from "@/components/UserAvatar";
 import TrialBanner from "@/components/TrialBanner";
 import { readWidgetSettings, readWidgetOrder, ALL_WIDGETS, type WidgetId } from "@/lib/widgets";
@@ -171,6 +172,13 @@ export default function DashboardContent(p: Props) {
         </div>
       )),
     routine_morning: () => <RoutineChecklist type="morning" />,
+    planner: () => (
+      <div className="card">
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{t("planner.title")}</div>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14 }}>{t("planner.desc")}</div>
+        <DailyPlanner />
+      </div>
+    ),
     habits: () => (
       <div className="card">
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{t("habits.title")}</div>

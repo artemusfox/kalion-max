@@ -37,6 +37,7 @@ export default function AppNav({
     { href: "/dashboard/body",      tk: "nav.body" as const },
     { href: "/dashboard/nutrition", tk: "nav.nutrition" as const },
     { href: "/dashboard/goals",     tk: "nav.goals" as const },
+    { href: "/dashboard/todos",     tk: "nav.todos" as const },
   ];
 
   return (

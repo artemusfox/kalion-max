@@ -9,6 +9,7 @@ export type WidgetId =
   | "activity"
   | "active_plan"
   | "routine_morning"
+  | "planner"
   | "habits"
   | "routine_evening"
   | "level_stats"
@@ -20,6 +21,7 @@ export const ALL_WIDGETS: WidgetId[] = [
   "activity",
   "active_plan",
   "routine_morning",
+  "planner",
   "habits",
   "routine_evening",
   "level_stats",
@@ -32,6 +34,7 @@ export const DEFAULT_WIDGETS: Record<WidgetId, boolean> = {
   activity: true,
   active_plan: true,
   routine_morning: true,
+  planner: true,
   habits: true,
   routine_evening: true,
   level_stats: true,

@@ -454,6 +454,34 @@ export const T = {
   "widget.level_stats":    { de: "Level + Stats",         en: "Level + Stats" },
   "widget.recent":         { de: "Letzte Workouts",       en: "Recent Workouts" },
   "widget.features":       { de: "Feature-Links",         en: "Feature Links" },
+
+  // ── TODOS / LISTS / PLANNER ──
+  "nav.todos":             { de: "Listen",                  en: "Lists" },
+  "todos.title":           { de: "📝 Listen & Aufgaben",   en: "📝 Lists & Tasks" },
+  "todos.desc":            { de: "Deine ToDos, Filme, Bücher — alles auf einen Blick.", en: "Your todos, movies, books — at a glance." },
+  "todos.list.new":        { de: "+ Neue Liste",            en: "+ New list" },
+  "todos.list.name.ph":    { de: "z. B. Reiseziele",        en: "e.g. Travel destinations" },
+  "todos.item.add.ph":     { de: "Neuer Eintrag…",          en: "New item…" },
+  "todos.empty":           { de: "Diese Liste ist leer — füg den ersten Eintrag hinzu.", en: "This list is empty — add the first item." },
+  "todos.empty.title":     { de: "Noch keine Listen",       en: "No lists yet" },
+  "todos.empty.desc":      { de: "Leg los — Filme, Bücher, Tagesaufgaben — was du dir merken willst.", en: "Get started — movies, books, daily tasks — anything you want to remember." },
+  "todos.delete.list":     { de: "Liste löschen?",          en: "Delete list?" },
+  "todos.delete.item":     { de: "Eintrag löschen?",        en: "Delete item?" },
+  "todos.due":             { de: "Fällig",                  en: "Due" },
+  "todos.priority":        { de: "Priorität",               en: "Priority" },
+  "todos.completed":       { de: "erledigt",                en: "completed" },
+  "todos.show.completed":  { de: "Erledigte zeigen",        en: "Show completed" },
+  "todos.hide.completed":  { de: "Erledigte verstecken",    en: "Hide completed" },
+
+  // Productivity-Planner Widget
+  "planner.title":         { de: "🎯 Heute fokussieren",   en: "🎯 Focus today" },
+  "planner.desc":          { de: "Was heute wirklich zählt — über alle Listen hinweg.", en: "What truly matters today — across all lists." },
+  "planner.overdue":       { de: "Überfällig",              en: "Overdue" },
+  "planner.today":         { de: "Heute",                   en: "Today" },
+  "planner.upcoming":      { de: "Demnächst",               en: "Upcoming" },
+  "planner.no.priority":   { de: "Keine Prioritäten heute — alles entspannt.", en: "No priorities today — all clear." },
+  "widget.planner":        { de: "Tages-Planer",            en: "Daily Planner" },
+  "widget.todos":          { de: "ToDos & Listen",          en: "Todos & Lists" },
 } satisfies Dict;
 
 export type TKey = keyof typeof T;
