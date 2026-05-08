@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 import { useLanguage } from "@/components/LanguageProvider";
+import MicroBurst from "@/components/MicroBurst";
 
 type Habit = {
   id: string;
@@ -32,6 +33,7 @@ export default function HabitTracker() {
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState(ICONS[0]);
   const [busy, setBusy] = useState(false);
+  const [bursts, setBursts] = useState<Record<string, number>>({});
 
   useEffect(() => { load(); }, []);
 
@@ -85,6 +87,8 @@ export default function HabitTracker() {
         user_id: user.id, habit_id: habit.id, log_date: today,
       });
       setLogs((s) => [...s, { habit_id: habit.id, log_date: today }]);
+      // Particle-Burst beim Tick
+      setBursts((s) => ({ ...s, [habit.id]: (s[habit.id] || 0) + 1 }));
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(20);
     }
   }
@@ -114,7 +118,34 @@ export default function HabitTracker() {
   const todayPct = habits.length > 0 ? (todayDoneCount / habits.length) * 100 : 0;
 
   if (loading) {
-    return <div style={{ padding: 30, textAlign: "center" }}><div className="spinner" style={{ margin: "0 auto" }} /></div>;
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} style={{
+            display: "flex", alignItems: "center", gap: 10,
+            padding: "10px 12px",
+            background: "var(--bg-elevated)", border: "1px solid var(--border)",
+            borderRadius: 10,
+          }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: "50%",
+              background: "var(--surface)",
+              animation: "kalion-shimmer 1.4s linear infinite",
+              backgroundImage: "linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%)",
+              backgroundSize: "200% 100%",
+            }} />
+            <div style={{ flex: 1 }}>
+              <div style={{
+                width: "50%", height: 12, borderRadius: 4,
+                animation: "kalion-shimmer 1.4s linear infinite",
+                backgroundImage: "linear-gradient(90deg, var(--surface) 0%, var(--surface-2) 50%, var(--surface) 100%)",
+                backgroundSize: "200% 100%",
+              }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
@@ -166,21 +197,24 @@ export default function HabitTracker() {
                 borderRadius: 10,
                 transition: "all 0.2s",
               }}>
-                {/* Checkbox */}
-                <button
-                  onClick={() => toggleToday(h)}
-                  aria-label={done ? "Uncheck" : "Check"}
-                  style={{
-                    width: 30, height: 30, borderRadius: "50%",
-                    border: `2px solid ${done ? "var(--accent)" : "var(--border-strong)"}`,
-                    background: done ? "var(--accent)" : "transparent",
-                    color: done ? "#0a0a10" : "var(--text-muted)",
-                    fontSize: 16, fontWeight: 900,
-                    cursor: "pointer", display: "flex",
-                    alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, transition: "all 0.2s",
-                  }}
-                >{done ? "✓" : ""}</button>
+                {/* Checkbox + Particle-Burst */}
+                <div style={{ position: "relative", flexShrink: 0 }}>
+                  <button
+                    onClick={() => toggleToday(h)}
+                    aria-label={done ? "Uncheck" : "Check"}
+                    style={{
+                      width: 30, height: 30, borderRadius: "50%",
+                      border: `2px solid ${done ? "var(--accent)" : "var(--border-strong)"}`,
+                      background: done ? "var(--accent)" : "transparent",
+                      color: done ? "#0a0a10" : "var(--text-muted)",
+                      fontSize: 16, fontWeight: 900,
+                      cursor: "pointer", display: "flex",
+                      alignItems: "center", justifyContent: "center",
+                      transition: "all 0.2s",
+                    }}
+                  >{done ? "✓" : ""}</button>
+                  <MicroBurst trigger={bursts[h.id] || 0} color="var(--accent)" />
+                </div>
 
                 <span style={{ fontSize: 22, lineHeight: 1, flexShrink: 0 }}>{h.icon}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>

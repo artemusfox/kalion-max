@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { useLanguage } from "@/components/LanguageProvider";
+import MicroBurst from "@/components/MicroBurst";
 
 type RoutineType = "morning" | "evening";
 
@@ -28,6 +29,7 @@ export default function RoutineChecklist({ type }: { type: RoutineType }) {
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState(type === "morning" ? "☀️" : "🌙");
   const [busy, setBusy] = useState(false);
+  const [bursts, setBursts] = useState<Record<string, number>>({});
 
   const ICONS = type === "morning" ? ICONS_MORNING : ICONS_EVENING;
   const title = type === "morning" ? t("routine.morning") : t("routine.evening");
@@ -87,6 +89,7 @@ export default function RoutineChecklist({ type }: { type: RoutineType }) {
         user_id: user.id, routine_item_id: item.id, log_date: today,
       });
       setDoneIds((s) => new Set([...s, item.id]));
+      setBursts((s) => ({ ...s, [item.id]: (s[item.id] || 0) + 1 }));
       if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(20);
     }
   }
@@ -137,18 +140,21 @@ export default function RoutineChecklist({ type }: { type: RoutineType }) {
                 border: "1px solid var(--border)", borderRadius: 8,
                 transition: "all 0.2s",
               }}>
-                <button
-                  onClick={() => toggle(it)}
-                  style={{
-                    width: 26, height: 26, borderRadius: "50%",
-                    border: `2px solid ${done ? "var(--accent)" : "var(--border-strong)"}`,
-                    background: done ? "var(--accent)" : "transparent",
-                    color: done ? "#0a0a10" : "var(--text-muted)",
-                    fontSize: 13, fontWeight: 900, cursor: "pointer",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, transition: "all 0.2s",
-                  }}
-                >{done ? "✓" : ""}</button>
+                <div style={{ position: "relative", flexShrink: 0 }}>
+                  <button
+                    onClick={() => toggle(it)}
+                    style={{
+                      width: 26, height: 26, borderRadius: "50%",
+                      border: `2px solid ${done ? "var(--accent)" : "var(--border-strong)"}`,
+                      background: done ? "var(--accent)" : "transparent",
+                      color: done ? "#0a0a10" : "var(--text-muted)",
+                      fontSize: 13, fontWeight: 900, cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      transition: "all 0.2s",
+                    }}
+                  >{done ? "✓" : ""}</button>
+                  <MicroBurst trigger={bursts[it.id] || 0} color="var(--accent)" count={6} size={5} />
+                </div>
                 <span style={{ fontSize: 18, flexShrink: 0 }}>{it.icon}</span>
                 <div style={{
                   flex: 1, fontSize: 12, fontWeight: 700,

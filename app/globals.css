@@ -76,6 +76,52 @@ body, .card, .btn, .form-input, .form-select, .form-textarea,
     border-color    var(--dur-base) var(--ease-out);
 }
 
+/* Skeleton-Loader Shimmer */
+@keyframes kalion-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Toast-Bounce: spring overshoot statt linear slide */
+@keyframes kalion-toast-spring {
+  0%   { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+  60%  { transform: translateX(-50%) translateY(8px);    opacity: 1; }
+  80%  { transform: translateX(-50%) translateY(-4px); }
+  100% { transform: translateX(-50%) translateY(0);   opacity: 1; }
+}
+
+/* Micro-Burst-Particle (Habit-Check Funken) */
+@keyframes kalion-burst-spark {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--burst-x, 0px)), calc(-50% + var(--burst-y, 0px))) scale(0); opacity: 0; }
+}
+
+/* Workout-Cinematic-Slide (zwischen Übungen) */
+@keyframes kalion-slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes kalion-slide-in-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes kalion-icon-zoom {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* SVG-Chart-Path Draw-In */
+@keyframes kalion-draw-line {
+  from { stroke-dashoffset: var(--draw-length, 1000); }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Year-Heatmap Cell-Pop */
+@keyframes kalion-cell-pop {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 /* Page-Transition: Cross-Fade + leichter Slide-Up beim Routenwechsel */
 @keyframes kalion-page-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -504,10 +550,16 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing:
   background: var(--bg-elevated); border: 1px solid var(--accent-border);
   color: var(--accent); padding: 14px 24px; border-radius: 14px;
   font-size: 13px; font-weight: 700; z-index: 1000;
-  opacity: 0; transition: all 0.3s;
+  opacity: 0;
   box-shadow: var(--shadow-lg);
+  /* Hide-Transition: schnell raus */
+  transition: opacity 0.2s ease-out, transform 0.2s ease-out;
 }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.show {
+  opacity: 1;
+  /* Show: spring-Animation mit overshoot */
+  animation: kalion-toast-spring 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
 
 .text-muted { color: var(--text-muted); }
 .text-dim { color: var(--text-dim); }

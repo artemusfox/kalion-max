@@ -164,6 +164,8 @@ export default function YearHeatmap() {
           {grid.cells.map((week, col) =>
             week.map((cell, row) => {
               if (!cell) return null;
+              // Cascading delay: links→rechts, oben→unten, max ~700ms total
+              const delay = Math.min(700, col * 8 + row * 4);
               return (
                 <rect
                   key={`${col}-${row}`}
@@ -177,7 +179,11 @@ export default function YearHeatmap() {
                   strokeWidth={0.5}
                   onMouseEnter={() => setHover(cell)}
                   onMouseLeave={() => setHover(null)}
-                  style={{ cursor: cell.workouts > 0 ? "pointer" : "default" }}
+                  style={{
+                    cursor: cell.workouts > 0 ? "pointer" : "default",
+                    transformOrigin: `${30 + col * (CELL + GAP) + CELL / 2}px ${24 + row * (CELL + GAP) + CELL / 2}px`,
+                    animation: `kalion-cell-pop 350ms ease-out ${delay}ms both`,
+                  }}
                 />
               );
             })

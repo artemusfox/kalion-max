@@ -226,10 +226,30 @@ function Chart({ points, metric }: { points: Point[]; metric: "weight" | "volume
             stroke="var(--border)" strokeWidth="1" strokeDasharray={t === 0 || t === 1 ? "0" : "3 4"}
           />
         ))}
-        {/* Area fill */}
-        <path d={areaPath} fill="var(--accent-tint)" />
-        {/* Line */}
-        <path d={linePath} fill="none" stroke="var(--accent)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {/* Area fill — fadet ein nachdem Line gezeichnet ist */}
+        <path
+          d={areaPath}
+          fill="var(--accent-tint)"
+          style={{
+            opacity: 0,
+            animation: "kalion-page-in 600ms ease-out 800ms forwards",
+          }}
+        />
+        {/* Line — zeichnet sich von links nach rechts */}
+        <path
+          d={linePath}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          pathLength={1000}
+          strokeDasharray={1000}
+          style={{
+            ["--draw-length" as any]: "1000",
+            animation: "kalion-draw-line 1000ms ease-out forwards",
+          }}
+        />
         {/* Points */}
         {points.map((p, i) => {
           const v = metric === "weight" ? p.maxWeight : p.volume;

@@ -408,9 +408,16 @@ export default function WorkoutSession({
         </div>
       </div>
 
-      {/* Exercise card */}
+      {/* Exercise card — re-mountet bei currentIdx-Wechsel via key, animiert ein */}
       <div style={{ maxWidth: 560, margin: "0 auto", padding: 20, paddingBottom: 120 }}>
-        <div className="card" style={{ position: "relative", overflow: "hidden", padding: 28 }}>
+        <div
+          key={currentIdx}
+          className="card"
+          style={{
+            position: "relative", overflow: "hidden", padding: 28,
+            animation: "kalion-slide-in-right 320ms var(--ease-out) both",
+          }}
+        >
           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: SPORT_COLORS[ex.exercise.sport] }} />
           <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, marginBottom: 6, textTransform: "uppercase" }}>
             {lang === "en" ? `Exercise ${currentIdx + 1} of ${session.length}` : `Übung ${currentIdx + 1} von ${session.length}`}
