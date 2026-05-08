@@ -8,6 +8,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { createClient } from "@/lib/supabase-client";
 import StreakFlame from "@/components/StreakFlame";
 import ActivityFeed from "@/components/ActivityFeed";
+import AnimatedNumber from "@/components/AnimatedNumber";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
 import DailyPlanner from "@/components/DailyPlanner";
@@ -213,7 +214,9 @@ export default function DashboardContent(p: Props) {
           }}>{p.level}</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", letterSpacing: 2, fontWeight: 800, textTransform: "uppercase" }}>{t("dash.level")} {p.level}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2 }}>{p.xp} {t("dash.xp")}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, marginTop: 2, fontVariantNumeric: "tabular-nums" }}>
+              <AnimatedNumber value={p.xp} /> {t("dash.xp")}
+            </div>
             <div style={{ height: 5, background: "var(--surface)", borderRadius: 3, overflow: "hidden", marginTop: 8 }}>
               <div style={{ height: "100%", background: "var(--accent)", width: `${p.levelProgress * 100}%`, transition: "width 0.4s" }} />
             </div>
@@ -286,7 +289,7 @@ export default function DashboardContent(p: Props) {
   const hasHidden = order.some((id) => !widgets[id]);
 
   return (
-    <div>
+    <div className={editing ? "" : "kalion-stagger"}>
       <TrialBanner profile={p.subscription || null} />
 
       {/* Edit-Toolbar */}
@@ -407,7 +410,9 @@ function Stat({ label, value, color, icon }: { label: string; value: number | st
     <div style={{ padding: 14, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
       <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
       <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 800 }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1, marginTop: 4 }}>{value}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1, marginTop: 4, fontVariantNumeric: "tabular-nums" }}>
+        {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
+      </div>
     </div>
   );
 }

@@ -53,6 +53,94 @@
   --font-display: 'Syne', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
+
+  /* Animation tokens (UI-UX-Pro-Max guidelines: 150-300ms, motion conveys meaning) */
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══════════════════════════════════════
+   GLOBAL MOTION — Page transitions, theme-color shifts, reduced motion
+   ═══════════════════════════════════════ */
+
+/* Smooth theme-color transitions — wenn User Theme/Surface wechselt, animieren Farben */
+body, .card, .btn, .form-input, .form-select, .form-textarea,
+.app-nav, .app-nav-link, [class*="card-"] {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color           var(--dur-base) var(--ease-out),
+    border-color    var(--dur-base) var(--ease-out);
+}
+
+/* Page-Transition: Cross-Fade + leichter Slide-Up beim Routenwechsel */
+@keyframes kalion-page-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.kalion-page-transition {
+  animation: kalion-page-in var(--dur-base) var(--ease-out) both;
+}
+
+/* Stagger-Fade-In: jedes Kind eines `.kalion-stagger`-Containers fadet 60ms später ein */
+@keyframes kalion-stagger-fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.kalion-stagger > * {
+  animation: kalion-stagger-fade 380ms var(--ease-out) both;
+  animation-delay: 0ms;
+}
+.kalion-stagger > *:nth-child(1)  { animation-delay: 0ms; }
+.kalion-stagger > *:nth-child(2)  { animation-delay: 60ms; }
+.kalion-stagger > *:nth-child(3)  { animation-delay: 120ms; }
+.kalion-stagger > *:nth-child(4)  { animation-delay: 180ms; }
+.kalion-stagger > *:nth-child(5)  { animation-delay: 240ms; }
+.kalion-stagger > *:nth-child(6)  { animation-delay: 300ms; }
+.kalion-stagger > *:nth-child(7)  { animation-delay: 360ms; }
+.kalion-stagger > *:nth-child(8)  { animation-delay: 420ms; }
+.kalion-stagger > *:nth-child(9)  { animation-delay: 480ms; }
+.kalion-stagger > *:nth-child(10) { animation-delay: 540ms; }
+.kalion-stagger > *:nth-child(n+11) { animation-delay: 600ms; }
+
+/* Card- und Button-Hover/Press: subtle scale + shadow (UI-UX-Pro-Max Touch-Tier) */
+.card {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color    var(--dur-base) var(--ease-out),
+    transform       var(--dur-fast) var(--ease-out),
+    box-shadow      var(--dur-fast) var(--ease-out);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.card-hover:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow);
+}
+.btn {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color    var(--dur-base) var(--ease-out),
+    color           var(--dur-base) var(--ease-out),
+    transform       var(--dur-fast) var(--ease-out) !important;
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Accessibility: respect prefers-reduced-motion (UI-UX-Pro-Max Priority 1) */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
