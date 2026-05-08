@@ -33,6 +33,7 @@ type Attachment = {
   id: string;
   item_id: string;
   filename: string | null;
+  file_url: string | null;
   storage_path: string | null;
   size_bytes: number | null;
   signed_url?: string | null;
