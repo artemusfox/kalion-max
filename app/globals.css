@@ -122,6 +122,19 @@ body, .card, .btn, .form-input, .form-select, .form-textarea,
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Logo Build-In: blur + scale + fade beim ersten Mount */
+@keyframes kalion-logo-build {
+  0%   { opacity: 0; transform: scale(1.4); filter: blur(10px); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* Magic-Number Field-Pulse beim Focus */
+@keyframes kalion-input-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50%      { box-shadow: 0 0 0 4px var(--accent-glow); }
+}
+
 /* Page-Transition: Cross-Fade + leichter Slide-Up beim Routenwechsel */
 @keyframes kalion-page-in {
   from { opacity: 0; transform: translateY(8px); }

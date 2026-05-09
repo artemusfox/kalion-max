@@ -561,16 +561,23 @@ function SetRow({ set, idx, tracking, onUpdate, onToggle }: {
 }
 
 function SetField({ label, value, step = 1, onChange }: { label: string; value?: number; step?: number; onChange: (v: number) => void }) {
+  const [focused, setFocused] = useState(false);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
       <input type="number" inputMode="decimal" step={step}
         value={value ?? ""}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={{
-          background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 8,
+          background: "var(--bg)",
+          border: `1px solid ${focused ? "var(--accent)" : "var(--border)"}`,
+          borderRadius: 8,
           padding: "6px 8px", width: 60, color: "var(--text)",
           fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700,
           outline: "none", textAlign: "center",
+          transition: "border-color 200ms var(--ease-out)",
+          animation: focused ? "kalion-input-pulse 1.6s ease-in-out infinite" : "none",
         }} />
       <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700 }}>{label}</span>
     </div>

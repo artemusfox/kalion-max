@@ -3,6 +3,7 @@ import LegalFooter from "@/components/LegalFooter";
 import PresenceHeartbeat from "@/components/PresenceHeartbeat";
 import GeoCapture from "@/components/GeoCapture";
 import PageTransition from "@/components/PageTransition";
+import OnboardingTour from "@/components/OnboardingTour";
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
@@ -26,6 +27,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <PageTransition>{children}</PageTransition>
       </div>
       <LegalFooter />
+      <OnboardingTour />
     </>
   );
 }

@@ -41,7 +41,7 @@ export default function AppNav({
   ];
 
   return (
-    <div className="app-nav">
+    <div className="app-nav" data-tour="nav">
       <Link href="/dashboard" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: 10 }}>
         <UserAvatar avatarUrl={avatarUrl} displayName={userName} size={30} ring />
         <BrandLogo size={28} textSize={16} withText={false} />

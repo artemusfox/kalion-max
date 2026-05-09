@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase-client";
 import StreakFlame from "@/components/StreakFlame";
 import ActivityFeed from "@/components/ActivityFeed";
 import AnimatedNumber from "@/components/AnimatedNumber";
+import ScrollHero from "@/components/ScrollHero";
 import HabitTracker from "@/components/HabitTracker";
 import RoutineChecklist from "@/components/RoutineChecklist";
 import DailyPlanner from "@/components/DailyPlanner";
@@ -123,7 +124,8 @@ export default function DashboardContent(p: Props) {
 
   const widgetRenderers: Record<WidgetId, () => React.ReactNode> = {
     hero: () => (
-      <div className="card" style={{
+      <ScrollHero>
+      <div className="card" data-tour="hero" style={{
         background: "linear-gradient(135deg, var(--accent-tint), transparent)",
         borderColor: "var(--accent-border)",
       }}>
@@ -142,9 +144,10 @@ export default function DashboardContent(p: Props) {
           &ldquo;{quote}&rdquo;
         </p>
       </div>
+      </ScrollHero>
     ),
     active_plan: () => (p.activePlan ? (
-        <div className="card" style={{
+        <div className="card" data-tour="active-plan" style={{
           background: `linear-gradient(135deg, ${SPORT_COLORS[p.activePlan.sport as Sport]}15, transparent)`,
           borderColor: `${SPORT_COLORS[p.activePlan.sport as Sport]}30`,
         }}>
@@ -181,7 +184,7 @@ export default function DashboardContent(p: Props) {
       </div>
     ),
     habits: () => (
-      <div className="card">
+      <div className="card" data-tour="habits">
         <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{t("habits.title")}</div>
         <div style={{ fontSize: 11, color: "var(--text-dim)", marginBottom: 14 }}>{t("habits.desc")}</div>
         <HabitTracker />
