@@ -5,3 +5,19 @@ node_modules/
 *.log
 .DS_Store
 .vercel
+
+# Capacitor / Android
+/android/app/build/
+/android/build/
+/android/.gradle/
+/android/.idea/
+/android/local.properties
+/android/captures/
+/android/app/release/
+/android/app/debug/
+*.iml
+
+# Keystore — NIEMALS committen
+*.keystore
+*.jks
+keystore.properties
