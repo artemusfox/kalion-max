@@ -16,7 +16,7 @@ export function useIsPro(): boolean | null {
     (async () => {
       const supabase = createClient();
       const { data } = await supabase.from("profiles")
-        .select("subscription_tier, subscription_status, subscription_period_end, trial_ends_at")
+        .select("subscription_tier, subscription_status, subscription_period_end, trial_ends_at, is_admin, is_pro_granted")
         .single();
       if (!cancelled) setPro(isPro(data));
     })();

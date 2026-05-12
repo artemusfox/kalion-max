@@ -6,13 +6,14 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 
 export default function UserActions({
-  userId, userEmail, userName, isAdmin, isMe,
+  userId, userEmail, userName, isAdmin, isMe, isProGranted,
 }: {
   userId: string;
   userEmail?: string;
   userName?: string;
   isAdmin: boolean;
   isMe: boolean;
+  isProGranted?: boolean;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -46,6 +47,23 @@ export default function UserActions({
     router.push("/dashboard/admin/users");
   }
 
+  async function toggleProGrant() {
+    const next = !isProGranted;
+    const action = next ? "Pro KOSTENFREI freischalten" : "Pro-Grant ENTZIEHEN";
+    if (!confirm(`${action} für "${userName || userEmail}"?`)) return;
+    setBusy(true);
+    const supabase = createClient();
+    const { error } = await supabase.rpc("admin_set_pro_grant", {
+      p_user_id: userId, p_granted: next,
+    });
+    setBusy(false);
+    if (error) { toast("Fehler: " + error.message, { type: "error" }); return; }
+    toast(next ? "Pro freigeschaltet 💎" : "Pro-Grant entfernt", {
+      type: "success", icon: next ? "💎" : "↩",
+    });
+    router.refresh();
+  }
+
   async function resetMfa() {
     if (!confirm(`2FA von "${userName || userEmail}" zurücksetzen? Der User muss sich danach neu einrichten.`)) return;
     setBusy(true);
@@ -72,6 +90,19 @@ export default function UserActions({
           }}
         >
           {isAdmin ? "🛡️ Admin entziehen" : "🛡️ Admin machen"}
+        </button>
+
+        <button
+          className="btn btn-block"
+          onClick={toggleProGrant}
+          disabled={busy}
+          style={{
+            border: isProGranted ? "1px solid var(--accent)" : "1px solid var(--border)",
+            background: isProGranted ? "var(--accent-tint)" : "var(--bg-elevated)",
+            color: isProGranted ? "var(--accent)" : "var(--text)",
+          }}
+        >
+          {isProGranted ? "💎 Pro entziehen" : "💎 Pro kostenfrei"}
         </button>
 
         <button

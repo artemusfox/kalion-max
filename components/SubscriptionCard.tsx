@@ -18,7 +18,7 @@ export default function SubscriptionCard() {
     (async () => {
       const supabase = createClient();
       const { data } = await supabase.from("profiles")
-        .select("subscription_tier, subscription_status, subscription_period_end, trial_ends_at, ls_customer_id")
+        .select("subscription_tier, subscription_status, subscription_period_end, trial_ends_at, ls_customer_id, is_admin, is_pro_granted")
         .single();
       setProfile(data as any);
       setLoading(false);
@@ -32,6 +32,8 @@ export default function SubscriptionCard() {
   const pro = isPro(profile);
   const trial = isTrial(profile);
   const trialDays = trialDaysLeft(profile);
+  const adminPro = !!(profile as any)?.is_admin;
+  const grantedPro = !!(profile as any)?.is_pro_granted;
 
   function openPortal() {
     if (!profile?.ls_customer_id) {
@@ -97,18 +99,22 @@ export default function SubscriptionCard() {
         marginBottom: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <div style={{ fontSize: 28 }}>💎</div>
+          <div style={{ fontSize: 28 }}>{adminPro ? "🛡️" : grantedPro ? "🎁" : "💎"}</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: "var(--accent)" }}>
               KALION MAX Pro
             </div>
             <div style={{ fontSize: 10, fontWeight: 800, color: sl.color, letterSpacing: 1, textTransform: "uppercase", marginTop: 2 }}>
-              ● {lang === "en" ? sl.en : sl.de}
+              ● {adminPro
+                  ? (lang === "en" ? "Admin (all features)" : "Admin (alle Features)")
+                  : grantedPro
+                  ? (lang === "en" ? "Granted by admin" : "Manuell freigeschaltet")
+                  : (lang === "en" ? sl.en : sl.de)}
             </div>
           </div>
         </div>
 
-        {trial && trialDays !== null && (
+        {!adminPro && !grantedPro && trial && trialDays !== null && (
           <div style={{
             padding: "8px 12px", background: "var(--accent-tint)",
             border: "1px solid var(--accent-border)", borderRadius: 8,
@@ -120,7 +126,7 @@ export default function SubscriptionCard() {
           </div>
         )}
 
-        {periodEnd && (
+        {!adminPro && !grantedPro && periodEnd && (
           <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
             {status === "cancelled"
               ? (lang === "en" ? `Access until: ${periodEnd}` : `Zugang bis: ${periodEnd}`)
@@ -129,17 +135,20 @@ export default function SubscriptionCard() {
         )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
-        <button onClick={openPortal} className="btn btn-block" disabled={!profile?.ls_customer_id}>
-          {lang === "en" ? "🧾 Manage subscription" : "🧾 Abo verwalten"}
-        </button>
-      </div>
-
-      <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 10, textAlign: "center", lineHeight: 1.5 }}>
-        {lang === "en"
-          ? "Cancel, update payment method, view invoices — all in the customer portal"
-          : "Kündigen, Zahlungsmethode ändern, Rechnungen ansehen — alles im Kundenportal"}
-      </div>
+      {!adminPro && !grantedPro && (
+        <>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 8 }}>
+            <button onClick={openPortal} className="btn btn-block" disabled={!profile?.ls_customer_id}>
+              {lang === "en" ? "🧾 Manage subscription" : "🧾 Abo verwalten"}
+            </button>
+          </div>
+          <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 10, textAlign: "center", lineHeight: 1.5 }}>
+            {lang === "en"
+              ? "Cancel, update payment method, view invoices — all in the customer portal"
+              : "Kündigen, Zahlungsmethode ändern, Rechnungen ansehen — alles im Kundenportal"}
+          </div>
+        </>
+      )}
     </div>
   );
 }

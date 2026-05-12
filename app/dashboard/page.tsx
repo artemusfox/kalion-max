@@ -43,6 +43,8 @@ export default async function DashboardPage() {
         subscription_status: profile.subscription_status,
         subscription_period_end: profile.subscription_period_end,
         trial_ends_at: profile.trial_ends_at,
+        is_admin: profile.is_admin,
+        is_pro_granted: profile.is_pro_granted,
       } : null}
     />
   );

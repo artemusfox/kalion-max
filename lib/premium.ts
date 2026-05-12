@@ -12,11 +12,20 @@ export type ProfileSubscription = {
   subscription_status?: SubscriptionStatus | null;
   subscription_period_end?: string | null;
   trial_ends_at?: string | null;
+  // Admin- und Grant-Felder: lassen Pro-Status auch ohne echte Subscription wahr sein
+  is_admin?: boolean | null;
+  is_pro_granted?: boolean | null;
 };
 
 // Hauptfunktion: Hat der User aktive Pro-Features?
+// Drei Wege zu Pro: (1) echte Subscription, (2) Admin-Grant, (3) ist selbst Admin
 export function isPro(profile: ProfileSubscription | null | undefined): boolean {
   if (!profile) return false;
+  // Admins kriegen Pro automatisch — die App-Owner sollen alles testen können
+  if (profile.is_admin) return true;
+  // Admin hat manuell Pro freigeschaltet (kostenfreier Grant)
+  if (profile.is_pro_granted) return true;
+  // Echte Subscription
   if (profile.subscription_tier !== "pro") return false;
   const status = profile.subscription_status;
   if (status === "active" || status === "trialing") return true;

@@ -45,6 +45,7 @@ export default async function AdminUsersPage() {
                 <Th>Streak</Th>
                 <Th>XP</Th>
                 <Th>Admin</Th>
+                <Th>Pro</Th>
                 <Th></Th>
               </tr>
             </thead>
@@ -71,6 +72,19 @@ export default async function AdminUsersPage() {
                           background: "var(--accent-tint)", color: "var(--accent)",
                           border: "1px solid var(--accent-border)", borderRadius: 4,
                         }}>ADMIN</span>
+                      ) : <span style={{ color: "var(--text-muted)" }}>—</span>}
+                    </Td>
+                    <Td>
+                      {p.is_admin ? (
+                        <span style={{ fontSize: 11, color: "var(--accent)" }} title="Admins haben automatisch Pro">🛡️ auto</span>
+                      ) : p.is_pro_granted ? (
+                        <span style={{
+                          fontSize: 10, fontWeight: 800, padding: "2px 6px",
+                          background: "var(--accent-tint)", color: "var(--accent)",
+                          border: "1px solid var(--accent-border)", borderRadius: 4,
+                        }}>💎 GRANTED</span>
+                      ) : p.subscription_tier === "pro" && (p.subscription_status === "active" || p.subscription_status === "trialing") ? (
+                        <span style={{ fontSize: 11, color: "var(--green)" }}>💎 paid</span>
                       ) : <span style={{ color: "var(--text-muted)" }}>—</span>}
                     </Td>
                     <Td>

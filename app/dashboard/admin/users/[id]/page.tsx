@@ -60,6 +60,14 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
                   verticalAlign: "middle",
                 }}>ADMIN</span>
               )}
+              {profile.is_pro_granted && !profile.is_admin && (
+                <span style={{
+                  fontSize: 10, fontWeight: 800, padding: "2px 6px", marginLeft: 10,
+                  background: "var(--accent-tint)", color: "var(--accent)",
+                  border: "1px solid var(--accent-border)", borderRadius: 4,
+                  verticalAlign: "middle",
+                }}>💎 PRO (GRANTED)</span>
+              )}
             </h1>
             <div style={{ fontSize: 13, color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
               {userEmail?.email || id}
@@ -79,6 +87,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         userEmail={userEmail?.email}
         userName={profile.display_name}
         isAdmin={profile.is_admin}
+        isProGranted={profile.is_pro_granted}
         isMe={isMe}
       />
 
