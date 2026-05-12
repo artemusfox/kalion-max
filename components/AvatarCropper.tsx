@@ -126,15 +126,16 @@ export default function AvatarCropper({ file, onCancel, onConfirm, outputSize = 
   return (
     <div
       onClick={onCancel}
+      className="kalion-glass-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 10000,
-        background: "rgba(0,0,0,0.85)", padding: 20,
+        padding: 20,
         display: "flex", alignItems: "center", justifyContent: "center",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="card"
+        className="card kalion-glass"
         style={{ maxWidth: 460, width: "100%", margin: 0, padding: 18 }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>

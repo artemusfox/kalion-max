@@ -105,15 +105,16 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
   return (
     <div
       onClick={onClose}
+      className="kalion-glass-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
-        background: "rgba(0,0,0,0.75)", padding: 20,
+        padding: 20,
         display: "flex", alignItems: "center", justifyContent: "center",
       }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="card"
+        className="card kalion-glass"
         style={{
           maxWidth: 480, width: "100%", maxHeight: "90vh", overflowY: "auto",
           margin: 0, padding: 20,

@@ -73,9 +73,10 @@ export default function PaywallModal({ open, onClose, feature }: Props) {
   return (
     <div
       onClick={onClose}
+      className="kalion-glass-backdrop"
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
-        background: "rgba(0,0,0,0.85)", padding: 20,
+        padding: 20,
         display: "flex", alignItems: "center", justifyContent: "center",
         animation: "kalion-fade 0.2s ease-out",
       }}
@@ -83,11 +84,11 @@ export default function PaywallModal({ open, onClose, feature }: Props) {
       <style>{`@keyframes kalion-fade { from { opacity: 0 } to { opacity: 1 } }`}</style>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="card"
+        className="card kalion-glass"
         style={{
           maxWidth: 480, width: "100%", maxHeight: "92vh", overflowY: "auto",
           margin: 0, padding: 24,
-          background: "linear-gradient(180deg, var(--accent-tint) 0%, var(--bg-raised) 30%)",
+          backgroundImage: "linear-gradient(180deg, var(--accent-tint) 0%, transparent 30%)",
           borderColor: "var(--accent-border)",
         }}
       >

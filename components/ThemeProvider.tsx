@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-export type Theme = "cyan" | "lime" | "purple" | "orange" | "rose" | "mono";
+export type Theme = "violet" | "cyan" | "lime" | "purple" | "orange" | "rose" | "mono";
 export type Surface =
   | "slate" | "black" | "blue" | "warm" | "forest" | "violet"
   | "stone" | "storm" | "sage" | "dust" | "mauve"
@@ -11,12 +11,13 @@ export type Surface =
 export type Tone = "dark" | "medium" | "light";
 
 export const THEMES: { id: Theme; label: string; preview: string }[] = [
-  { id: "cyan",   label: "Electric Cyan",  preview: "#22D3EE" },
-  { id: "lime",   label: "Neon Lime",      preview: "#A3E635" },
-  { id: "purple", label: "Royal Purple",   preview: "#A78BFA" },
-  { id: "orange", label: "Sunset Orange",  preview: "#FB923C" },
-  { id: "rose",   label: "Crimson Rose",   preview: "#F472B6" },
-  { id: "mono",   label: "Monochrome",     preview: "#E5E7EB" },
+  { id: "violet", label: "Electric Violet", preview: "#7C5CFC" },
+  { id: "cyan",   label: "Classic Cyan",    preview: "#22D3EE" },
+  { id: "lime",   label: "Neon Lime",       preview: "#A3E635" },
+  { id: "purple", label: "Royal Purple",    preview: "#A78BFA" },
+  { id: "orange", label: "Sunset Orange",   preview: "#FB923C" },
+  { id: "rose",   label: "Crimson Rose",    preview: "#F472B6" },
+  { id: "mono",   label: "Monochrome",      preview: "#E5E7EB" },
 ];
 
 export const SURFACES: { id: Surface; label: string; preview: string; tone: Tone }[] = [
@@ -48,7 +49,7 @@ type Ctx = {
   setCustomAccent: (hex: string | null) => void;
 };
 const ThemeCtx = createContext<Ctx>({
-  theme: "cyan", setTheme: () => {},
+  theme: "violet", setTheme: () => {},
   surface: "slate", setSurface: () => {},
   customAccent: null, setCustomAccent: () => {},
 });
@@ -58,7 +59,7 @@ export function useTheme() {
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("cyan");
+  const [theme, setThemeState] = useState<Theme>("violet");
   const [surface, setSurfaceState] = useState<Surface>("slate");
   const [customAccent, setCustomAccentState] = useState<string | null>(null);
 

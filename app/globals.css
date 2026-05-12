@@ -20,11 +20,12 @@
   --text-2: #c0c4d0;
   --text-dim: #8a8f9c;
   --text-muted: #5a5f6c;
-  
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
-  --shadow: 0 4px 16px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.3);
-  
+
+  /* Coloured shadows (akzent-getöntes Schwarz für Premium-Feel) */
+  --shadow-sm: 0 1px 2px rgba(15,12,40,0.40);
+  --shadow: 0 4px 16px rgba(15,12,40,0.45), 0 2px 4px rgba(15,12,40,0.28);
+  --shadow-lg: 0 16px 48px rgba(15,12,40,0.55), 0 4px 16px rgba(124,92,252,0.10);
+
   /* KALION palette */
   --red: #FF5A6B;
   --coral: #FF8B6B;
@@ -36,18 +37,45 @@
   --indigo: #7C8AFF;
   --purple: #8B7FF0;
   --pink: #F472B6;
-  
-  /* Signature: Electric-Lime to Steel-Blue */
-  --accent: #22D3EE;
-  --accent-2: #7C8AFF;
-  --accent-glow: rgba(34,211,238,0.22);
-  --accent-tint: rgba(34,211,238,0.1);
-  --accent-border: rgba(34,211,238,0.35);
-  
-  --radius-sm: 10px;
-  --radius: 14px;
+  --violet: #7C5CFC;
+
+  /* Signature: Electric Violet → Cyan */
+  --accent: #7C5CFC;
+  --accent-2: #22D3EE;
+  --accent-glow: rgba(124,92,252,0.28);
+  --accent-tint: rgba(124,92,252,0.12);
+  --accent-border: rgba(124,92,252,0.40);
+
+  /* Spacing Scale (4er-System) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 80px;
+
+  /* Typography Scale */
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 14px;
+  --text-md:   15px;
+  --text-lg:   16px;
+  --text-xl:   20px;
+  --text-2xl:  26px;
+  --text-3xl:  32px;
+  --text-4xl:  40px;
+  --text-5xl:  56px;
+
+  /* Radii (4er-Multipla) */
+  --radius-sm: 8px;
+  --radius:    12px;
+  --radius-md: 16px;
   --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   
   --font-display: 'Syne', system-ui, sans-serif;
@@ -205,6 +233,14 @@ body, .card, .btn, .form-input, .form-select, .form-textarea,
 /* ═══════════════════════════════════════════════════════════
    THEME VARIANTS — überschreibt nur die Accent-Farben
    ═══════════════════════════════════════════════════════════ */
+
+[data-theme="cyan"] {
+  --accent: #22D3EE;
+  --accent-2: #7C8AFF;
+  --accent-glow: rgba(34,211,238,0.22);
+  --accent-tint: rgba(34,211,238,0.10);
+  --accent-border: rgba(34,211,238,0.35);
+}
 
 [data-theme="lime"] {
   --accent: #A3E635;
@@ -415,7 +451,12 @@ body, .card, .btn, .form-input, .form-select, .form-textarea,
 
 html, body {
   font-family: var(--font-body);
-  background: var(--bg);
+  /* Mesh-Gradient: zwei sehr subtile Akzent-Bubbles im Hintergrund auf dem Base-BG */
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 0%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 100%, color-mix(in srgb, var(--accent-2) 6%, transparent), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh; min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
@@ -468,9 +509,25 @@ body::before {
 h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.5px; }
 
 .card {
-  background: var(--bg-raised); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px;
+  background:
+    /* Layered border — top brighter, bottom subtler (lit-from-above) */
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0) 50%) padding-box,
+    var(--bg-raised) padding-box;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
   box-shadow: var(--shadow-sm);
+  position: relative;
+}
+/* Optional Glass-Variante via .card.kalion-glass — backdrop-blur für Modals */
+.card.kalion-glass {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+    color-mix(in srgb, var(--bg-raised) 75%, transparent);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border-color: var(--border-active);
 }
 
 .btn {
@@ -484,12 +541,22 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing:
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0) 50%),
+    linear-gradient(135deg, var(--accent), var(--accent-2));
   border: none; color: #0a0a10;
-  box-shadow: 0 4px 20px var(--accent-glow);
+  box-shadow:
+    0 4px 20px var(--accent-glow),
+    inset 0 1px 0 rgba(255,255,255,0.25);
   font-weight: 800;
 }
-.btn-primary:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 28px var(--accent-glow),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
 
 .btn-ghost { background: transparent; border-color: transparent; }
 .btn-ghost:hover { background: var(--surface); }
@@ -805,3 +872,50 @@ body { overscroll-behavior-y: contain; }
   font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
   border: 1px solid transparent;
 }
+
+/* ═══════════════════════════════════════
+   KALION GLASS — Generic Glassmorphism Helper
+   Apply to any container (modal overlay, tooltip, panel)
+   ═══════════════════════════════════════ */
+.kalion-glass {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%),
+    color-mix(in srgb, var(--bg-raised) 72%, transparent);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+/* Soft modal-overlay backdrop with subtle accent tint */
+.kalion-glass-backdrop {
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+    rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px) saturate(120%);
+  -webkit-backdrop-filter: blur(4px) saturate(120%);
+}
+
+/* ═══════════════════════════════════════
+   FOCUS RING — A11y improvement (Tier 3)
+   ═══════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.btn:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--accent-glow);
+}
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+/* Inputs already use border + ring on focus — keep them as-is */

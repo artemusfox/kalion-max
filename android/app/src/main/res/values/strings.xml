@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Kalion Max</string>
+    <string name="title_activity_main">Kalion Max</string>
+    <string name="package_name">app.kalionmax.android</string>
+    <string name="custom_url_scheme">app.kalionmax.android</string>
+</resources>

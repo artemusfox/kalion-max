@@ -150,15 +150,12 @@ export default function OnboardingTour() {
 
       {/* Tooltip */}
       <div
+        className="kalion-glass"
         style={{
           position: "fixed",
           top: tooltipTop, left: tooltipLeft,
           width: 320,
-          background: "var(--bg-raised)",
-          border: "1px solid var(--accent-border)",
-          borderRadius: 14,
           padding: 16,
-          boxShadow: "var(--shadow-lg)",
           zIndex: 9999,
           animation: "kalion-page-in 350ms var(--ease-out) both",
         }}
