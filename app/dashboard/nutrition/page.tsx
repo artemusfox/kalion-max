@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase-client";
 import { BUILT_IN_FOODS, FOOD_BY_ID, FOOD_CATEGORIES, MEAL_TYPES, SUPPLEMENT_PRESETS, TIMING_LABELS, guessMealType, type Food, type FoodCategory, type MealType } from "@/lib/foods";
 import { useToast } from "@/components/Toast";
 import { EmptyState, SkeletonList } from "@/components/UI";
+import BarcodeScanner from "@/components/BarcodeScanner";
+import BarcodeScanResult from "@/components/BarcodeScanResult";
 
 export default function NutritionPage() {
   const [tab, setTab] = useState<"today" | "meals" | "supplements" | "foods">("today");
@@ -202,6 +204,8 @@ function MealsTab() {
   const [loading, setLoading] = useState(true);
   const [showPicker, setShowPicker] = useState<MealType | null>(null);
   const [selectedDate, setSelectedDate] = useState(today);
+  const [showScanner, setShowScanner] = useState(false);
+  const [scannedBarcode, setScannedBarcode] = useState<string | null>(null);
 
   useEffect(() => { load(); }, [selectedDate]);
 
@@ -230,7 +234,7 @@ function MealsTab() {
 
   return (
     <>
-      {/* Date selector */}
+      {/* Date selector + Scan-Button */}
       <div className="card" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <input type="date" className="form-input" value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
@@ -238,10 +242,39 @@ function MealsTab() {
         {selectedDate !== today && (
           <button className="btn btn-ghost" onClick={() => setSelectedDate(today)}>Heute</button>
         )}
+        <button
+          className="btn btn-primary"
+          onClick={() => setShowScanner(true)}
+          style={{ padding: "10px 14px", fontSize: 13 }}
+          title="Barcode scannen"
+        >
+          📷 Scan
+        </button>
         <div style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
           {meals.length} Eintr{meals.length === 1 ? "ag" : "äge"}
         </div>
       </div>
+
+      {showScanner && (
+        <BarcodeScanner
+          onClose={() => setShowScanner(false)}
+          onDetected={(barcode) => {
+            setShowScanner(false);
+            setScannedBarcode(barcode);
+          }}
+        />
+      )}
+
+      {scannedBarcode && (
+        <BarcodeScanResult
+          barcode={scannedBarcode}
+          onClose={() => setScannedBarcode(null)}
+          onSaved={() => {
+            setScannedBarcode(null);
+            load();
+          }}
+        />
+      )}
 
       {loading ? <Loading /> : (Object.keys(MEAL_TYPES) as MealType[]).map((mt) => (
         <div key={mt} className="card">

@@ -33,6 +33,7 @@ export default function AppNav({
     { href: "/dashboard",           tk: "nav.home" as const },
     { href: "/dashboard/plans",     tk: "nav.plans" as const },
     { href: "/dashboard/training",  tk: "nav.training" as const },
+    { href: "/dashboard/cardio",    tk: "nav.cardio" as const },
     { href: "/dashboard/progress",  tk: "nav.stats" as const },
     { href: "/dashboard/body",      tk: "nav.body" as const },
     { href: "/dashboard/nutrition", tk: "nav.nutrition" as const },

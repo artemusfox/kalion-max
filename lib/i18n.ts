@@ -118,6 +118,7 @@ export const T = {
   "nav.home":      { de: "Home",      en: "Home" },
   "nav.plans":     { de: "Pläne",     en: "Plans" },
   "nav.training":  { de: "Training",  en: "Training" },
+  "nav.cardio":    { de: "Cardio",    en: "Cardio" },
   "nav.stats":     { de: "Stats",     en: "Stats" },
   "nav.body":      { de: "Körper",    en: "Body" },
   "nav.nutrition": { de: "Nutrition", en: "Nutrition" },
