@@ -10,11 +10,12 @@ import UserStats from "@/components/UserStats";
 import UserAvatar from "@/components/UserAvatar";
 
 export default function AppNav({
-  userName, isAdmin, avatarUrl,
+  userName, isAdmin, avatarUrl, isBeta,
 }: {
   userName?: string | null;
   isAdmin?: boolean | null;
   avatarUrl?: string | null;
+  isBeta?: boolean | null;
 } = {}) {
   const pathname = usePathname();
   const router = useRouter();
@@ -63,6 +64,15 @@ export default function AppNav({
 
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
         <UserStats compact />
+        {isBeta && (
+          <span title="Beta-Tester-Account" style={{
+            fontSize: 9, fontWeight: 800, padding: "3px 8px",
+            background: "linear-gradient(135deg, #FFB800, #FB923C)",
+            color: "#1a1006", borderRadius: 6,
+            letterSpacing: 1.2, textTransform: "uppercase",
+            border: "1px solid rgba(255,184,0,0.5)",
+          }}>BETA</span>
+        )}
         {isAdmin && (
           <Link href="/dashboard/admin" className="btn btn-ghost" style={{
             padding: "6px 10px", fontSize: 11, fontWeight: 800,

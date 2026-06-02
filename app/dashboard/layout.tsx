@@ -14,7 +14,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, is_admin, avatar_url")
+    .select("display_name, is_admin, avatar_url, is_beta")
     .eq("id", user.id)
     .single();
 
@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <>
       <PresenceHeartbeat />
       <GeoCapture />
-      <AppNav userName={profile?.display_name} isAdmin={profile?.is_admin} avatarUrl={profile?.avatar_url} />
+      <AppNav userName={profile?.display_name} isAdmin={profile?.is_admin} avatarUrl={profile?.avatar_url} isBeta={profile?.is_beta} />
       <div className="container page-content">
         <PageTransition>{children}</PageTransition>
       </div>

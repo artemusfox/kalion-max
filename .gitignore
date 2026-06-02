@@ -21,3 +21,7 @@ node_modules/
 *.keystore
 *.jks
 keystore.properties
+
+# Beta-Tester-Credentials (vom seed:beta script erzeugt)
+beta-credentials.tsv
+beta-credentials.txt

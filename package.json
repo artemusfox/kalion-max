@@ -11,7 +11,8 @@
     "cap:add:android": "npx cap add android",
     "cap:open:android": "npx cap open android",
     "cap:run:android": "npx cap run android",
-    "cap:assets": "npx @capacitor/assets generate --android"
+    "cap:assets": "npx @capacitor/assets generate --android",
+    "seed:beta": "tsx scripts/seed-beta-users.ts"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
@@ -25,7 +26,7 @@
     "@supabase/supabase-js": "^2.46.1",
     "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.38.0",
-    "next": "^15.5.15",
+    "next": "^9.3.3",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
@@ -35,6 +36,8 @@
     "@types/node": "^22.9.0",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.19.2",
     "typescript": "5.6.3"
   }
 }
