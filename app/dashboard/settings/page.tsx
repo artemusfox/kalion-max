@@ -73,14 +73,35 @@ function SettingsInner() {
   }
 
   async function saveProfile() {
+    if (saving) return;
     setSaving(true);
-    const supabase = createClient();
-    const { error } = await supabase.from("profiles")
-      .update({ display_name: displayName })
-      .eq("id", profile.id);
-    if (error) toast("Fehler: " + error.message, { type: "error" });
-    else toast(tr("settings.saved"), { type: "success", icon: "✓" });
-    setSaving(false);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast("Nicht eingeloggt", { type: "error" });
+        return;
+      }
+      const trimmed = (displayName || "").trim();
+      if (!trimmed) {
+        toast("Anzeigename darf nicht leer sein", { type: "error" });
+        return;
+      }
+      const { error } = await supabase.from("profiles")
+        .update({ display_name: trimmed, updated_at: new Date().toISOString() })
+        .eq("id", user.id);
+      if (error) {
+        toast("Fehler: " + error.message, { type: "error" });
+        return;
+      }
+      // Lokalen State aktualisieren damit Header etc. den neuen Namen zeigen
+      setProfile((p: any) => p ? { ...p, display_name: trimmed } : p);
+      toast(tr("settings.saved"), { type: "success", icon: "✓" });
+    } catch (e: any) {
+      toast("Speichern fehlgeschlagen: " + (e?.message || "unbekannt"), { type: "error" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function changePassword() {
