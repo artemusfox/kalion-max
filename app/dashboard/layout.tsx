@@ -4,6 +4,7 @@ import PresenceHeartbeat from "@/components/PresenceHeartbeat";
 import GeoCapture from "@/components/GeoCapture";
 import PageTransition from "@/components/PageTransition";
 import OnboardingTour from "@/components/OnboardingTour";
+import LiveChat from "@/components/LiveChat";
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
@@ -28,6 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </div>
       <LegalFooter />
       <OnboardingTour />
+      <LiveChat />
     </>
   );
 }

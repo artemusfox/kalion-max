@@ -9,13 +9,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("is_admin")
+    .select("is_admin, is_moderator")
     .eq("id", user.id)
     .single();
 
-  if (!profile?.is_admin) redirect("/dashboard");
+  const isAdminOrMod = profile?.is_admin || profile?.is_moderator;
+  if (!isAdminOrMod) redirect("/dashboard");
 
-  // AAL-Check: Admins MÜSSEN aal2 (= mit Faktor verifizierte Session) haben
+  // AAL-Check NUR für Admins (Mods sind davon befreit)
+  if (profile?.is_admin) {
   const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   const { data: factorsData } = await supabase.auth.mfa.listFactors();
   const hasMfa = (factorsData?.totp ?? []).some((f: any) => f.status === "verified");
@@ -26,8 +28,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   if (aalData?.currentLevel !== "aal2") {
-    // MFA aktiv aber Session erst aal1 → zu Challenge
-    redirect("/auth/mfa-challenge?next=/dashboard/admin");
+      redirect("/auth/mfa-challenge?next=/dashboard/admin");
+    }
   }
 
   return (
@@ -40,12 +42,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div style={{
           fontSize: 10, fontWeight: 800, letterSpacing: 2, padding: "4px 8px",
           background: "var(--accent)", color: "#0a0a10", borderRadius: 6,
-        }}>ADMIN</div>
+        }}>{profile?.is_admin ? "ADMIN" : "MOD"}</div>
         <Link href="/dashboard/admin" className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }}>
           📊 Übersicht
         </Link>
         <Link href="/dashboard/admin/users" className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }}>
           👥 User
+        </Link>
+        <Link href="/dashboard/admin/chat" className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }}>
+          💬 Chat
         </Link>
         <Link href="/dashboard/admin/audit" className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }}>
           📋 Audit-Log

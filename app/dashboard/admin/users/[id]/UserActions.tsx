@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase-client";
 import { useToast } from "@/components/Toast";
 
 export default function UserActions({
-  userId, userEmail, userName, isAdmin, isMe, isProGranted,
+  userId, userEmail, userName, isAdmin, isMe, isProGranted, isModerator,
 }: {
   userId: string;
   userEmail?: string;
@@ -14,6 +14,7 @@ export default function UserActions({
   isAdmin: boolean;
   isMe: boolean;
   isProGranted?: boolean;
+  isModerator?: boolean;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -64,6 +65,20 @@ export default function UserActions({
     router.refresh();
   }
 
+  async function toggleModerator() {
+    const action = isModerator ? "Moderator-Rechte ENTZIEHEN" : "Moderator-Rechte ERTEILEN";
+    if (!confirm(`${action} für "${userName || userEmail}"?`)) return;
+    setBusy(true);
+    const supabase = createClient();
+    const { error } = await supabase.rpc("admin_set_is_moderator", {
+      p_user_id: userId, p_is_mod: !isModerator,
+    });
+    setBusy(false);
+    if (error) { toast("Fehler: " + error.message, { type: "error" }); return; }
+    toast(isModerator ? "Moderator-Rechte entzogen" : "Moderator-Rechte erteilt", { type: "success", icon: "🌟" });
+    router.refresh();
+  }
+
   async function resetMfa() {
     if (!confirm(`2FA von "${userName || userEmail}" zurücksetzen? Der User muss sich danach neu einrichten.`)) return;
     setBusy(true);
@@ -103,6 +118,19 @@ export default function UserActions({
           }}
         >
           {isProGranted ? "💎 Pro entziehen" : "💎 Pro kostenfrei"}
+        </button>
+
+        <button
+          className="btn btn-block"
+          onClick={toggleModerator}
+          disabled={busy}
+          style={{
+            border: isModerator ? "1px solid var(--accent)" : "1px solid var(--border)",
+            background: isModerator ? "var(--accent-tint)" : "var(--bg-elevated)",
+            color: isModerator ? "var(--accent)" : "var(--text)",
+          }}
+        >
+          {isModerator ? "🌟 Mod entziehen" : "🌟 Mod machen"}
         </button>
 
         <button

@@ -88,6 +88,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
         userName={profile.display_name}
         isAdmin={profile.is_admin}
         isProGranted={profile.is_pro_granted}
+        isModerator={profile.is_moderator}
         isMe={isMe}
       />
 
