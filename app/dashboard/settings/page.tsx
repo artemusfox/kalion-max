@@ -63,11 +63,18 @@ function SettingsInner() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) setEmail(user.email || "");
 
-    const { data } = await supabase.from("profiles").select("*").single();
-    if (data) {
-      setProfile(data);
-      setDisplayName(data.display_name || "");
-      setAvatarUrl(data.avatar_url || null);
+    if (user) {
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      if (error) console.error("[settings] profile load failed", error);
+      if (data) {
+        console.log("[settings] profile loaded", {
+          is_admin: data.is_admin, is_pro_granted: data.is_pro_granted,
+          subscription_tier: data.subscription_tier, subscription_status: data.subscription_status,
+        });
+        setProfile(data);
+        setDisplayName(data.display_name || "");
+        setAvatarUrl(data.avatar_url || null);
+      }
     }
     setLoading(false);
   }

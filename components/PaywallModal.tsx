@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase-client";
 import { useLanguage } from "@/components/LanguageProvider";
 
@@ -67,10 +68,11 @@ export default function PaywallModal({ open, onClose, feature }: Props) {
   }
 
   if (!open) return null;
+  if (typeof document === "undefined") return null;
 
   const features = lang === "en" ? FEATURES_EN : FEATURES_DE;
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
       className="kalion-glass-backdrop"
@@ -164,7 +166,8 @@ export default function PaywallModal({ open, onClose, feature }: Props) {
             : "Bezahlung über Lemon Squeezy · Sichere Abwicklung · Keine Bindung"}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
