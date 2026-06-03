@@ -31,6 +31,7 @@ function MfaChallengeInner() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [factorId, setFactorId] = useState<string | null>(null);
+  const [trustBrowser, setTrustBrowser] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -41,6 +42,17 @@ function MfaChallengeInner() {
         router.replace(next);
         return;
       }
+      // Trust-Cookie aus letzter MFA-Session prüfen (1h gültig)
+      try {
+        const r = await fetch("/api/mfa/trust", { credentials: "include" });
+        if (r.ok) {
+          const j = await r.json();
+          if (j.trusted) {
+            router.replace(next);
+            return;
+          }
+        }
+      } catch { /* ignore */ }
       const id = await getFirstVerifiedFactorId(supabase);
       if (!id) { router.replace(next); return; }
       setFactorId(id);
@@ -62,6 +74,9 @@ function MfaChallengeInner() {
       setError(t("mfa.code.invalid"));
       setCode("");
       return;
+    }
+    if (trustBrowser) {
+      try { await fetch("/api/mfa/trust", { method: "POST", credentials: "include" }); } catch { /* ignore */ }
     }
     toast(t("mfa.verified"), { type: "success", icon: "🔐" });
     router.replace(next);
@@ -126,6 +141,22 @@ function MfaChallengeInner() {
             />
 
             {error && <div className="form-error" style={{ marginBottom: 16 }}>{error}</div>}
+
+            <label style={{
+              display: "flex", alignItems: "center", gap: 8,
+              padding: "8px 0", marginBottom: 12, cursor: "pointer",
+              fontSize: 12, color: "var(--text-dim)", userSelect: "none",
+            }}>
+              <input
+                type="checkbox"
+                checked={trustBrowser}
+                onChange={(e) => setTrustBrowser(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: "var(--accent)" }}
+              />
+              <span>
+                {t("mfa.trust.checkbox") /* z.B. "Diesem Browser für 1 Stunde vertrauen" */}
+              </span>
+            </label>
 
             <button
               type="submit"

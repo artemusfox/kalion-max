@@ -33,7 +33,7 @@ export default function AvatarPicker({ currentUrl, displayName, onClose, onChang
     (async () => {
       const supabase = createClient();
       const { data } = await supabase.from("profiles")
-        .select("subscription_tier, subscription_status, subscription_period_end")
+        .select("subscription_tier, subscription_status, subscription_period_end, is_admin, is_pro_granted")
         .single();
       setProStatus(isPro(data));
     })();

@@ -110,6 +110,7 @@ export const T = {
   },
   "mfa.recovery.consume": { de: "Code einlösen",                en: "Redeem code" },
   "mfa.confirm":          { de: "Bestätigen",                   en: "Confirm" },
+  "mfa.trust.checkbox":   { de: "Diesem Browser für 1 Stunde vertrauen", en: "Trust this browser for 1 hour" },
   "mfa.code.invalid":     { de: "Code falsch oder abgelaufen",  en: "Code invalid or expired" },
   "mfa.code.invalid.recovery": { de: "Code ungültig oder bereits verwendet", en: "Code invalid or already used" },
   "mfa.reset.toast":      { de: "2FA wurde zurückgesetzt — bitte neu einrichten", en: "2FA reset — please set up again" },

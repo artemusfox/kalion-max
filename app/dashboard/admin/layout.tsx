@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { verifyTrustToken, MFA_TRUST_COOKIE } from "@/lib/mfa-trust";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -28,7 +30,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   if (aalData?.currentLevel !== "aal2") {
-      redirect("/auth/mfa-challenge?next=/dashboard/admin");
+      // Trust-Cookie als Backup: User hat in letzten 60 Min MFA bestanden
+      const jar = await cookies();
+      const trustToken = jar.get(MFA_TRUST_COOKIE)?.value;
+      const isTrusted = verifyTrustToken(trustToken, user.id);
+      if (!isTrusted) {
+        redirect("/auth/mfa-challenge?next=/dashboard/admin");
+      }
     }
   }
 
